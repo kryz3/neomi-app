@@ -35,7 +35,7 @@ html, body {
   --color-light: #D6D6D6;
   --color-info: #39A2AE;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #030303;
 }
 
 /* Classes utilitaires personnalisées */
@@ -51,12 +51,29 @@ html, body {
   color: var(--color-accent);
 }
 
+.text-light {
+  color: var(--color-light);
+}
+
+.text-info {
+  color: var(--color-info);
+}
+
+
 .bg-primary {
   background-color: var(--color-primary);
 }
 
 .bg-secondary {
   background-color: var(--color-secondary);
+}
+
+.bg-light {
+  background-color: var(--color-light);
+}
+
+.bg-accent {
+  background-color: var(--color-accent);
 }
 
 .border-primary {

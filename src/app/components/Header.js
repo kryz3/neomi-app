@@ -16,17 +16,17 @@ export default function Header() {
     ];
 
     return(
-        <header className="w-full h-16 flex items-center justify-between px-8 bg-white shadow-sm uppercase font-medium ">
-            <Link href="/" className="flex items-center">
-                <img src="/neomi-logo.png" alt="Neomi Logo" className="w-24 h-auto"/>
+        <header className=" z-999 w-full h-16 fixed top-0 flex items-center justify-between px-8 backdrop-blur-sm bg-light shadow-sm uppercase font-medium">
+            <Link href="/" className="flex items-center h-full ">
+                <img src="/neomi-logo.png" alt="Neomi Logo" className="sm:h-20 h-12  w-auto"/>
             </Link>
             
-            <nav className="flex items-center space-x-6">
+            <nav className="flex items-center space-x-6 h-full">
                 {liens.map((link) => (
                     <Link 
                         href={link.href} 
                         key={link.href} 
-                        className={`hover:text-primary text-secondary transition-colors ${
+                        className={`text-xs sm:text-base hover:text-primary text-secondary transition-colors flex items-center h-full ${
                             isActive(link.href) 
                                 ? "text-accent font-semibold" 
                                 : "text-gray-700"

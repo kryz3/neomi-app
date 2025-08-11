@@ -1,4 +1,4 @@
-
+import Organigramme from "@/app/components/Organigramme"
 
 export const metadata = {
   title: "Accueil - Neomi",
@@ -7,33 +7,29 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-primary">Bienvenue chez Neomi</h1>
-      <p className="text-lg text-secondary mb-4">
-        Découvrez nos services et notre expertise.
-      </p>
+    <div className="">
+      {/* Section 1 */}
+      <section className="w-full flex items-center justify-center bg-light flex-col mt-16" style={{height: 'calc(100vh - 4rem)'}}>
+        <div className="flex flex-col w-2/3 md:w-1/3 mx-auto ">
+          <h1 className="text-accent text-center text-5xl font-semibold">
+            Gagnez du temps grâce à votre expert-comptable
+          </h1>
+           </div>
+          <div className="mt-5 text-xl md:w-full w-2/3">
+          <h2 className="text-secondary text-center">
+            Un accompagnement quotidien par des des professionnels
+          </h2>
+          <h2 className="text-secondary text-center">
+            Une solution adaptée à vos besoins
+          </h2>
+          </div>
+      </section>
+            {/* Section 2 */}
+      <section className="w-full flex items-center justify-center bg-secondary flex-col" style={{height: 'calc(100vh - 4rem)'}}>
+
       
-      {/* Test des couleurs */}
-      <div className="mt-8 space-y-4">
-        <div className="p-4 bg-primary text-white rounded">
-          Test couleur primary en arrière-plan
-        </div>
-        <div className="p-4 bg-secondary text-white rounded">
-          Test couleur secondary en arrière-plan
-        </div>
-        <div className="p-4 bg-accent text-white rounded">
-          Test couleur accent en arrière-plan
-        </div>
-        <div className="text-primary text-xl font-bold">
-          Texte en couleur primary
-        </div>
-        <div className="text-secondary text-xl font-bold">
-          Texte en couleur secondary
-        </div>
-        <div className="text-accent text-xl font-bold">
-          Texte en couleur accent
-        </div>
-      </div>
+ <Organigramme /> 
+      </section>
     </div>
   );
 }

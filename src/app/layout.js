@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <ViewTransitions>
     <html lang="fr">
-      <body>
+      <body className="scroll-smooth">
         <Header/>
         {children}
       </body>

@@ -1,26 +1,69 @@
 @import "tailwindcss";
 
+/* Import des polices locales */
+@font-face {
+  font-family: 'Exo 2';
+  src: url('/fonts/Exo2-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Exo 2';
+  src: url('/fonts/Exo2-Italic-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Police par défaut */
+* {
+  font-family: 'Exo 2', sans-serif;
+}
+
+html, body {
+  font-family: 'Exo 2', sans-serif;
+}
+
+
+/* Variables CSS personnalisées pour les couleurs */
 :root {
+  --color-primary: #262451;
+  --color-secondary: #435EB8;
+  --color-accent: #AC0C61;
+  --color-light: #D6D6D6;
+  --color-info: #39A2AE;
   --background: #ffffff;
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Classes utilitaires personnalisées */
+.text-primary {
+  color: var(--color-primary);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.text-secondary {
+  color: var(--color-secondary);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.text-accent {
+  color: var(--color-accent);
 }
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+

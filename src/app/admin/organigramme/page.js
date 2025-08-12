@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAvis, createAvis, updateAvisField, deleteAvis } from "../../hooks/useAvis";
+import { useOrganigramme } from "../../hooks/useOrganigramme";
 
-export default function AdminAvisPage() {
-  const { avis, loading, error, refetch, setAvis } = useAvis();
-  const [selectedAvis, setSelectedAvis] = useState(null);
+export default function AdminOrganigrammePage() {
+  const { organigrammes, loading, error, createOrganigramme, updateOrganigramme, deleteOrganigramme, refreshOrganigrammes } = useOrganigramme();
+  const [selectedOrganigramme, setSelectedOrganigramme] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "" });
 
@@ -14,63 +14,52 @@ export default function AdminAvisPage() {
     setTimeout(() => setNotification({ message: "", type: "" }), 3000);
   };
 
-  const handleCreateAvis = async (avisData) => {
+  const handleCreateOrganigramme = async (organigrammeData) => {
     try {
-      // Vérifier que l'ordre n'est pas déjà pris
-      const existingOrdres = avis.map(a => a.ordre);
-      if (existingOrdres.includes(avisData.ordre)) {
-        showNotification(`L'ordre ${avisData.ordre} est déjà utilisé. Choisissez un autre numéro.`, "error");
-        return;
-      }
-
-      const response = await createAvis(avisData);
-      showNotification("Avis créé avec succès");
-      setShowCreateForm(false);
+      console.log('Data envoyée pour création:', organigrammeData); // Debug
       
-      // Mettre à jour l'état local directement avec le nouvel avis
-      if (response.success && response.data) {
-        setAvis(prevAvis => [...prevAvis, response.data]);
+      const response = await createOrganigramme(organigrammeData);
+      console.log('Réponse création:', response); // Debug
+      
+      if (response.success) {
+        showNotification("Membre créé avec succès");
+        setShowCreateForm(false);
+        refreshOrganigrammes(); // Recharger la liste
+      } else {
+        showNotification(response.error || "Erreur lors de la création du membre", "error");
       }
     } catch (error) {
-      showNotification("Erreur lors de la création de l'avis", "error");
+      console.log('Erreur création:', error); // Debug
+      showNotification("Erreur lors de la création du membre", "error");
     }
   };
 
   const handleUpdateField = async (id, field, value) => {
     if (!id) {
-      showNotification("Erreur: ID de l'avis manquant", "error");
+      showNotification("Erreur: ID du membre manquant", "error");
       console.error("ID manquant pour la mise à jour:", { id, field, value });
       return { success: false, error: "ID manquant" };
     }
     
-    // Si c'est le champ ordre, vérifier qu'il n'est pas déjà pris
-    if (field === 'ordre') {
-      const existingOrdres = avis.filter(a => a._id !== id).map(a => a.ordre);
-      if (existingOrdres.includes(parseInt(value))) {
-        const errorMsg = `L'ordre ${value} est déjà utilisé par un autre avis.`;
+    try {
+      const organigrammeData = { [field]: value };
+      const response = await updateOrganigramme(id, organigrammeData);
+      
+      if (response.success) {
+        showNotification(`Champ ${field} mis à jour avec succès`);
+        
+        // Mettre à jour selectedOrganigramme si c'est le membre en cours d'édition
+        if (selectedOrganigramme && selectedOrganigramme._id === id) {
+          setSelectedOrganigramme(response.data);
+        }
+        
+        refreshOrganigrammes(); // Recharger la liste
+        return { success: true };
+      } else {
+        const errorMsg = response.error || `Erreur lors de la mise à jour du champ ${field}`;
         showNotification(errorMsg, "error");
         return { success: false, error: errorMsg };
       }
-    }
-    
-    try {
-      const response = await updateAvisField(id, field, value);
-      showNotification(`Champ ${field} mis à jour avec succès`);
-      
-      // Mettre à jour l'état local directement
-      if (response.success && response.data) {
-        setAvis(prevAvis => 
-          prevAvis.map(avis => 
-            avis._id === id ? response.data : avis
-          )
-        );
-        
-        // Mettre à jour aussi selectedAvis si c'est l'avis en cours d'édition
-        if (selectedAvis && selectedAvis._id === id) {
-          setSelectedAvis(response.data);
-        }
-      }
-      return { success: true };
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
       const errorMsg = `Erreur lors de la mise à jour du champ ${field}`;
@@ -79,23 +68,25 @@ export default function AdminAvisPage() {
     }
   };
 
-  const handleDeleteAvis = async (id) => {
+  const handleDeleteOrganigramme = async (id) => {
     if (!id) {
-      showNotification("Erreur: ID de l'avis manquant", "error");
+      showNotification("Erreur: ID du membre manquant", "error");
       console.error("ID manquant pour la suppression:", { id });
       return;
     }
     
-    if (confirm("Êtes-vous sûr de vouloir supprimer cet avis ?")) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer ce membre ?")) {
       try {
-        await deleteAvis(id);
-        showNotification("Avis supprimé avec succès");
-        
-        // Mettre à jour l'état local directement
-        setAvis(prevAvis => prevAvis.filter(avis => avis._id !== id));
+        const response = await deleteOrganigramme(id);
+        if (response.success) {
+          showNotification("Membre supprimé avec succès");
+          refreshOrganigrammes(); // Recharger la liste
+        } else {
+          showNotification(response.error || "Erreur lors de la suppression du membre", "error");
+        }
       } catch (error) {
         console.error("Erreur lors de la suppression:", error);
-        showNotification("Erreur lors de la suppression de l'avis", "error");
+        showNotification("Erreur lors de la suppression du membre", "error");
       }
     }
   };
@@ -128,8 +119,8 @@ export default function AdminAvisPage() {
                 Dashboard Admin
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Gestion des Avis</h1>
-                <p className="text-gray-600">Administration des avis clients</p>
+                <h1 className="text-3xl font-bold text-gray-900">Gestion de l'Organigramme</h1>
+                <p className="text-gray-600">Administration des membres de l'équipe</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -149,7 +140,7 @@ export default function AdminAvisPage() {
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                Nouvel Avis
+                Nouveau Membre
               </button>
             </div>
           </div>
@@ -169,45 +160,31 @@ export default function AdminAvisPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Avis</p>
-                <p className="text-2xl font-bold text-gray-900">{avis.length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avec Logo</p>
-                <p className="text-2xl font-bold text-gray-900">{avis.filter(a => a.logo).length}</p>
+                <p className="text-sm font-medium text-gray-600">Total Membres</p>
+                <p className="text-2xl font-bold text-gray-900">{organigrammes.length}</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Table des avis */}
+        {/* Table des membres */}
         <div className="bg-white shadow-sm rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">Tous les Avis</h2>
+            <h2 className="text-lg font-medium text-gray-900">Tous les Membres</h2>
           </div>
           
           {error ? (
             <div className="p-6 text-center text-red-600">
-              Erreur lors du chargement des avis: {error}
+              Erreur lors du chargement des membres: {error}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -215,22 +192,19 @@ export default function AdminAvisPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ordre
+                      Membre
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Entreprise
+                      Photo
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Référent
+                      Contact
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Rôle
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Recommandation
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Logo
+                      Description
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -238,60 +212,59 @@ export default function AdminAvisPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {avis.map((avisItem) => (
-                    <tr key={avisItem._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {avisItem.ordre}
-                      </td>
+                  {organigrammes.map((membreItem) => (
+                    <tr key={membreItem._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {avisItem.logo ? (
+                          {membreItem.photo ? (
                             <img 
-                              src={avisItem.logo} 
-                              alt={avisItem.entreprise}
+                              src={membreItem.photo} 
+                              alt={`${membreItem.firstname} ${membreItem.name}`}
                               className="w-8 h-8 object-contain mr-3"
+                              onError={(e) => {
+                                console.log('Erreur image:', membreItem.photo);
+                                e.target.style.display = 'none';
+                              }}
                             />
                           ) : (
-                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                              <span className="text-xs font-medium text-gray-600">
-                                {avisItem.entreprise.charAt(0)}
-                              </span>
+                            <div className="w-8 h-8 bg-red-200 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-xs font-medium text-red-600">❌</span>
                             </div>
                           )}
-                          <div className="text-sm font-medium text-gray-900">
-                            {avisItem.entreprise}
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {membreItem.firstname} {membreItem.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {membreItem.photo || 'Pas de photo'}
+                            </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {avisItem.referent}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {avisItem.role}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 max-w-xs truncate">
-                        {avisItem.recommandation}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {avisItem.logo ? (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                            Oui
-                          </span>
-                        ) : (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                            Non
-                          </span>
-                        )}
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                          Oui
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div>{membreItem.email}</div>
+                        <div className="text-gray-500">{membreItem.phone}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {membreItem.role}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
+                        {membreItem.description}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
-                          onClick={() => setSelectedAvis(avisItem)}
+                          onClick={() => setSelectedOrganigramme(membreItem)}
                           className="text-accent hover:text-accent/80 mr-4"
                         >
                           Modifier
                         </button>
                         <button
-                          onClick={() => handleDeleteAvis(avisItem._id)}
+                          onClick={() => handleDeleteOrganigramme(membreItem._id)}
                           className="text-red-600 hover:text-red-800"
                         >
                           Supprimer
@@ -308,18 +281,17 @@ export default function AdminAvisPage() {
 
       {/* Modal de création */}
       {showCreateForm && (
-        <CreateAvisModal
+        <CreateOrganigrammeModal
           onClose={() => setShowCreateForm(false)}
-          onSubmit={handleCreateAvis}
-          existingAvis={avis}
+          onSubmit={handleCreateOrganigramme}
         />
       )}
 
       {/* Modal de modification */}
-      {selectedAvis && (
-        <EditAvisModal
-          avis={selectedAvis}
-          onClose={() => setSelectedAvis(null)}
+      {selectedOrganigramme && (
+        <EditOrganigrammeModal
+          organigramme={selectedOrganigramme}
+          onClose={() => setSelectedOrganigramme(null)}
           onUpdate={handleUpdateField}
         />
       )}
@@ -327,29 +299,16 @@ export default function AdminAvisPage() {
   );
 }
 
-// Composant Modal pour créer un avis
-function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
-  // Calculer le prochain ordre disponible
-  const getNextAvailableOrdre = () => {
-    const existingOrdres = existingAvis.map(a => a.ordre).sort((a, b) => a - b);
-    let nextOrdre = 1;
-    for (const ordre of existingOrdres) {
-      if (ordre === nextOrdre) {
-        nextOrdre++;
-      } else {
-        break;
-      }
-    }
-    return nextOrdre;
-  };
-
+// Composant Modal pour créer un membre
+function CreateOrganigrammeModal({ onClose, onSubmit }) {
   const [formData, setFormData] = useState({
-    entreprise: "",
-    referent: "",
-    role: "",
-    recommandation: "",
-    ordre: getNextAvailableOrdre(),
-    logo: ""
+    name: "",
+    firstname: "",
+    email: "",
+    phone: "",
+    photo: "",
+    description: "",
+    role: ""
   });
   const [uploading, setUploading] = useState(false);
 
@@ -359,7 +318,7 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload/avis', {
+      const response = await fetch('/api/upload/organigramme', {
         method: 'POST',
         body: formData,
       });
@@ -369,9 +328,9 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
       }
 
       const data = await response.json();
-      setFormData(prev => ({ ...prev, logo: data.filePath }));
+      setFormData(prev => ({ ...prev, photo: data.filePath }));
     } catch (error) {
-      alert('Erreur lors de l\'upload de l\'image');
+      alert('Erreur lors de l\'upload de la photo');
     } finally {
       setUploading(false);
     }
@@ -379,14 +338,21 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validation des champs requis (photo devient optionnelle)
+    if (!formData.name || !formData.firstname || !formData.email || !formData.phone || !formData.description || !formData.role) {
+      alert('Tous les champs sont requis');
+      return;
+    }
+    
     onSubmit(formData);
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">Créer un nouvel avis</h3>
+          <h3 className="text-lg font-medium">Créer un nouveau membre</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -395,30 +361,79 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Entreprise *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.entreprise}
-              onChange={(e) => setFormData(prev => ({ ...prev, entreprise: e.target.value }))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Prénom *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.firstname}
+                onChange={(e) => setFormData(prev => ({ ...prev, firstname: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nom *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Référent *
+              Photo (optionnelle)
             </label>
             <input
-              type="text"
-              required
-              value={formData.referent}
-              onChange={(e) => setFormData(prev => ({ ...prev, referent: e.target.value }))}
+              type="file"
+              accept="image/*"
+              onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              disabled={uploading}
             />
+            {uploading && <p className="text-sm text-gray-600 mt-1">Upload en cours...</p>}
+            {formData.photo ? (
+              <div className="mt-2">
+                <img src={formData.photo} alt="Preview" className="w-16 h-16 object-contain" />
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 mt-1">Si aucune photo n'est uploadée, une image par défaut sera utilisée</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email *
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Téléphone *
+              </label>
+              <input
+                type="tel"
+                required
+                value={formData.phone}
+                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
           </div>
 
           <div>
@@ -436,67 +451,13 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Logo
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-              disabled={uploading}
-            />
-            {uploading && <p className="text-sm text-gray-600 mt-1">Upload en cours...</p>}
-            {formData.logo && (
-              <div className="mt-2">
-                <img src={formData.logo} alt="Preview" className="w-16 h-16 object-contain" />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ordre d'affichage
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={formData.ordre}
-              onChange={(e) => {
-                const newOrdre = parseInt(e.target.value) || 1;
-                setFormData(prev => ({ ...prev, ordre: newOrdre }));
-              }}
-              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent ${
-                existingAvis.some(a => a.ordre === formData.ordre) 
-                  ? 'border-red-300 bg-red-50' 
-                  : 'border-gray-300'
-              }`}
-            />
-            {existingAvis.some(a => a.ordre === formData.ordre) && (
-              <p className="text-sm text-red-600 mt-1">
-                ⚠️ Cet ordre est déjà utilisé
-              </p>
-            )}
-            <p className="text-sm text-gray-500 mt-1">
-              Ordres disponibles : {(() => {
-                const taken = existingAvis.map(a => a.ordre).sort((a, b) => a - b);
-                const available = [];
-                for (let i = 1; i <= Math.max(...taken, 0) + 3; i++) {
-                  if (!taken.includes(i)) available.push(i);
-                }
-                return available.slice(0, 5).join(', ') + (available.length > 5 ? '...' : '');
-              })()}
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Recommandation *
+              Description *
             </label>
             <textarea
               required
-              rows="4"
-              value={formData.recommandation}
-              onChange={(e) => setFormData(prev => ({ ...prev, recommandation: e.target.value }))}
+              rows="3"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
@@ -511,9 +472,14 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-accent text-white rounded-md hover:bg-accent/90"
+              disabled={uploading}
+              className={`flex-1 px-4 py-2 rounded-md text-white ${
+                uploading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-accent hover:bg-accent/90'
+              }`}
             >
-              Créer
+              {uploading ? 'Upload...' : 'Créer'}
             </button>
           </div>
         </form>
@@ -522,15 +488,12 @@ function CreateAvisModal({ onClose, onSubmit, existingAvis }) {
   );
 }
 
-// Composant Modal pour modifier un avis
-function EditAvisModal({ avis, onClose, onUpdate }) {
+// Composant Modal pour modifier un membre
+function EditOrganigrammeModal({ organigramme, onClose, onUpdate }) {
   const [editingField, setEditingField] = useState(null);
   const [tempValue, setTempValue] = useState("");
   const [uploading, setUploading] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "", field: "" });
-
-  // Récupérer la liste de tous les avis pour vérifier les ordres
-  const { avis: allAvis } = useAvis();
 
   const showLocalNotification = (message, type = "success", field = "") => {
     setNotification({ message, type, field });
@@ -545,7 +508,7 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
 
   const handleSave = async () => {
     try {
-      const result = await onUpdate(avis._id, editingField, tempValue);
+      const result = await onUpdate(organigramme._id, editingField, tempValue);
       if (result && result.success) {
         setEditingField(null);
         showLocalNotification(`${editingField} mis à jour avec succès ✓`, "success", editingField);
@@ -557,17 +520,13 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
     }
   };
 
-  const isOrdreAlreadyTaken = (ordre) => {
-    return allAvis && allAvis.some(a => a._id !== avis._id && a.ordre === parseInt(ordre));
-  };
-
   const handleImageUpload = async (file) => {
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload/avis', {
+      const response = await fetch('/api/upload/organigramme', {
         method: 'POST',
         body: formData,
       });
@@ -577,9 +536,9 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
       }
 
       const data = await response.json();
-      await onUpdate(avis._id, 'logo', data.filePath);
+      await onUpdate(organigramme._id, 'photo', data.filePath);
     } catch (error) {
-      alert('Erreur lors de l\'upload de l\'image');
+      alert('Erreur lors de l\'upload de la photo');
     } finally {
       setUploading(false);
     }
@@ -589,7 +548,7 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-medium">Modifier l'avis</h3>
+          <h3 className="text-lg font-medium">Modifier le membre</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -620,10 +579,10 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
         )}
 
         <div className="space-y-6">
-          {/* Entreprise */}
+          {/* Prénom */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Entreprise</label>
-            {editingField === "entreprise" ? (
+            <label className="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+            {editingField === "firstname" ? (
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -640,16 +599,16 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
               </div>
             ) : (
               <div 
-                onClick={() => handleEdit("entreprise", avis.entreprise)}
+                onClick={() => handleEdit("firstname", organigramme.firstname)}
                 className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
-                  notification.field === 'entreprise' && notification.type === 'success'
+                  notification.field === 'firstname' && notification.type === 'success'
                     ? 'border-green-300 bg-green-50'
                     : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span>{avis.entreprise}</span>
-                  {notification.field === 'entreprise' && notification.type === 'success' && (
+                  <span>{organigramme.firstname}</span>
+                  {notification.field === 'firstname' && notification.type === 'success' && (
                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -659,32 +618,10 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
             )}
           </div>
 
-          {/* Logo */}
+          {/* Nom */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-            <div className="flex items-center gap-4">
-              {avis.logo ? (
-                <img src={avis.logo} alt={avis.entreprise} className="w-16 h-16 object-contain" />
-              ) : (
-                <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
-                  <span className="text-gray-500">Aucun</span>
-                </div>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
-                className="flex-1"
-                disabled={uploading}
-              />
-              {uploading && <span className="text-sm text-gray-600">Upload...</span>}
-            </div>
-          </div>
-
-          {/* Référent */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Référent</label>
-            {editingField === "referent" ? (
+            <label className="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+            {editingField === "name" ? (
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -697,16 +634,103 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
               </div>
             ) : (
               <div 
-                onClick={() => handleEdit("referent", avis.referent)}
+                onClick={() => handleEdit("name", organigramme.name)}
                 className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
-                  notification.field === 'referent' && notification.type === 'success'
+                  notification.field === 'name' && notification.type === 'success'
                     ? 'border-green-300 bg-green-50'
                     : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span>{avis.referent}</span>
-                  {notification.field === 'referent' && notification.type === 'success' && (
+                  <span>{organigramme.name}</span>
+                  {notification.field === 'name' && notification.type === 'success' && (
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Photo */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Photo</label>
+            <div className="flex items-center gap-4">
+              <img src={organigramme.photo} alt={`${organigramme.firstname} ${organigramme.name}`} className="w-16 h-16 object-contain" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => e.target.files[0] && handleImageUpload(e.target.files[0])}
+                className="flex-1"
+                disabled={uploading}
+              />
+              {uploading && <span className="text-sm text-gray-600">Upload...</span>}
+            </div>
+            <p className="text-sm text-gray-500 mt-1">Cliquez pour remplacer la photo actuelle</p>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            {editingField === "email" ? (
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={tempValue}
+                  onChange={(e) => setTempValue(e.target.value)}
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2"
+                />
+                <button onClick={handleSave} className="px-3 py-2 bg-green-500 text-white rounded-md">✓</button>
+                <button onClick={() => setEditingField(null)} className="px-3 py-2 bg-gray-500 text-white rounded-md">✕</button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => handleEdit("email", organigramme.email)}
+                className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
+                  notification.field === 'email' && notification.type === 'success'
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span>{organigramme.email}</span>
+                  {notification.field === 'email' && notification.type === 'success' && (
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Téléphone */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+            {editingField === "phone" ? (
+              <div className="flex gap-2">
+                <input
+                  type="tel"
+                  value={tempValue}
+                  onChange={(e) => setTempValue(e.target.value)}
+                  className="flex-1 border border-gray-300 rounded-md px-3 py-2"
+                />
+                <button onClick={handleSave} className="px-3 py-2 bg-green-500 text-white rounded-md">✓</button>
+                <button onClick={() => setEditingField(null)} className="px-3 py-2 bg-gray-500 text-white rounded-md">✕</button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => handleEdit("phone", organigramme.phone)}
+                className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
+                  notification.field === 'phone' && notification.type === 'success'
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span>{organigramme.phone}</span>
+                  {notification.field === 'phone' && notification.type === 'success' && (
                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -720,19 +744,21 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Rôle</label>
             {editingField === "role" ? (
-              <div className="flex gap-2">
+              <div className="space-y-2">
                 <input
                   type="text"
                   value={tempValue}
                   onChange={(e) => setTempValue(e.target.value)}
-                  className="flex-1 border border-gray-300 rounded-md px-3 py-2"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2"
                 />
-                <button onClick={handleSave} className="px-3 py-2 bg-green-500 text-white rounded-md">✓</button>
-                <button onClick={() => setEditingField(null)} className="px-3 py-2 bg-gray-500 text-white rounded-md">✕</button>
+                <div className="flex gap-2">
+                  <button onClick={handleSave} className="px-3 py-2 bg-green-500 text-white rounded-md">✓</button>
+                  <button onClick={() => setEditingField(null)} className="px-3 py-2 bg-gray-500 text-white rounded-md">✕</button>
+                </div>
               </div>
             ) : (
               <div 
-                onClick={() => handleEdit("role", avis.role)}
+                onClick={() => handleEdit("role", organigramme.role)}
                 className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
                   notification.field === 'role' && notification.type === 'success'
                     ? 'border-green-300 bg-green-50'
@@ -740,7 +766,7 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span>{avis.role}</span>
+                  <span>{organigramme.role}</span>
                   {notification.field === 'role' && notification.type === 'success' && (
                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -751,70 +777,10 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
             )}
           </div>
 
-          {/* Ordre */}
+          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Ordre d'affichage</label>
-            {editingField === "ordre" ? (
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    min="1"
-                    value={tempValue}
-                    onChange={(e) => setTempValue(e.target.value)}
-                    className={`flex-1 border rounded-md px-3 py-2 ${
-                      isOrdreAlreadyTaken(tempValue) 
-                        ? 'border-red-300 bg-red-50' 
-                        : 'border-gray-300'
-                    }`}
-                  />
-                  <button 
-                    onClick={handleSave} 
-                    disabled={isOrdreAlreadyTaken(tempValue)}
-                    className={`px-3 py-2 rounded-md text-white ${
-                      isOrdreAlreadyTaken(tempValue)
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                  >
-                    ✓
-                  </button>
-                  <button onClick={() => setEditingField(null)} className="px-3 py-2 bg-gray-500 text-white rounded-md">✕</button>
-                </div>
-                {isOrdreAlreadyTaken(tempValue) && (
-                  <p className="text-sm text-red-600 flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 14c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    ⚠️ Cet ordre est déjà utilisé par un autre avis
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div 
-                onClick={() => handleEdit("ordre", avis.ordre)}
-                className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
-                  notification.field === 'ordre' && notification.type === 'success'
-                    ? 'border-green-300 bg-green-50'
-                    : 'border-gray-200'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{avis.ordre}</span>
-                  {notification.field === 'ordre' && notification.type === 'success' && (
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Recommandation */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Recommandation</label>
-            {editingField === "recommandation" ? (
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            {editingField === "description" ? (
               <div className="space-y-2">
                 <textarea
                   rows="4"
@@ -829,16 +795,16 @@ function EditAvisModal({ avis, onClose, onUpdate }) {
               </div>
             ) : (
               <div 
-                onClick={() => handleEdit("recommandation", avis.recommandation)}
+                onClick={() => handleEdit("description", organigramme.description)}
                 className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 min-h-[100px] ${
-                  notification.field === 'recommandation' && notification.type === 'success'
+                  notification.field === 'description' && notification.type === 'success'
                     ? 'border-green-300 bg-green-50'
                     : 'border-gray-200'
                 }`}
               >
                 <div className="flex items-start justify-between">
-                  <span className="flex-1">{avis.recommandation}</span>
-                  {notification.field === 'recommandation' && notification.type === 'success' && (
+                  <span className="flex-1">{organigramme.description}</span>
+                  {notification.field === 'description' && notification.type === 'success' && (
                     <svg className="w-4 h-4 text-green-600 mt-1 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>

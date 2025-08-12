@@ -9,6 +9,41 @@ export default function Organigramme() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [isMobilePopupOpen, setIsMobilePopupOpen] = useState(false);
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Charger les membres depuis l'API
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await fetch('/api/organigrammes');
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement des membres');
+        }
+        const data = await response.json();
+        
+        // Transformer les données API vers le format attendu
+        const transformedMembers = data.map(member => ({
+          name: `${member.firstname} ${member.name}`,
+          role: member.role,
+          img: member.photo,
+          description: member.description,
+          mail: member.email,
+          phone: member.phone,
+        }));
+        
+        setMembers(transformedMembers);
+      } catch (error) {
+        console.error('Erreur lors du chargement des membres:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
 
   // Gérer l'overflow du body quand le popup mobile est ouvert
   useEffect(() => {
@@ -24,55 +59,51 @@ export default function Organigramme() {
     };
   }, [isMobilePopupOpen]);
 
-  const members = [
-    {
-      name: "Mohamed",
-      role: "Expert-Comptable et conseiller",
-      img: "/organigramme/mohamed.webp",
-      description:
-        "Mohamed est bien plus qu'un expert-comptable. Titulaire du DEC et d'un DU Conseil en Gestion de Patrimoine, il est votre interlocuteur privilégié au sein du cabinet. Son écoute attentive et sa réactivité font de lui le partenaire idéal pour naviguer dans le monde complexe de l'entrepreneuriat. Passionné par la fiscalité et la gestion de patrimoine, il est très proche de ses clients et met un point d'honneur à trouver une solution adaptée à leurs besoins.",
-      mail: "mna@neomi.fr",
-      phone: "+33 6 78 29 60 28",
-    },
-    {
-      name: "Agnès",
-      role: "Expert-Comptable et conseiller",
-      img: "/organigramme/agnes.webp",
-      description:
-        "Agnès apporte une expertise précieuse au cabinet avec sa formation approfondie en expertise comptable. Son approche méthodique et sa passion pour les chiffres en font une conseillère de choix pour nos clients. Elle excelle dans l'optimisation fiscale et accompagne avec bienveillance les entrepreneurs dans leurs projets.",
-      mail: "agnes@neomi.fr",
-      phone: "+33 6 78 29 60 29",
-    },
-    {
-      name: "Ty Leng",
-      role: "Expert-Comptable et conseiller",
-      img: "/organigramme/tyleng.webp",
-      description:
-        "Ty Leng combine expertise technique et vision stratégique. Fort de son expérience internationale, il apporte une approche moderne et innovante à la gestion comptable. Sa capacité d'adaptation et son sens du relationnel font de lui un atout précieux pour nos clients internationaux.",
-      mail: "tyleng@neomi.fr",
-      phone: "+33 6 78 29 60 30",
-    },
-    {
-      name: "Eugénie",
-      role: "Expert-Comptable et conseiller",
-      img: "/organigramme/eugenie.webp",
-      description:
-        "Eugénie se distingue par sa créativité dans la résolution de problèmes complexes. Spécialisée dans l'accompagnement des startups et des entreprises en croissance, elle sait allier rigueur comptable et conseil stratégique pour optimiser la performance de nos clients.",
-      mail: "eugenie@neomi.fr",
-      phone: "+33 6 78 29 60 31",
-    },
-    {
-      name: "Inès",
-      role: "Expert-Comptable et conseiller",
-      img: "/organigramme/ines.webp",
-      description:
-        "Inès apporte une touche de modernité au cabinet avec sa maîtrise des outils digitaux. Passionnée par l'innovation en comptabilité, elle accompagne nos clients dans leur transformation numérique tout en maintenant l'excellence de nos services traditionnels.",
-      mail: "ines@neomi.fr",
-      phone: "+33 6 78 29 60 32",
-    },
+  // Si en cours de chargement
+  if (loading) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-white">Chargement de l'équipe...</p>
+        </div>
+      </div>
+    );
+  }
 
-    
-  ];
+  // Si erreur de chargement
+  if (error) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-white mb-2">Erreur de chargement</h3>
+          <p className="text-red-400">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si aucun membre trouvé
+  if (members.length === 0) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold text-white mb-2">Aucun membre trouvé</h3>
+          <p className="text-slate-400">L'équipe sera bientôt disponible</p>
+        </div>
+      </div>
+    );
+  }
 
   // Calculer la taille optimale de la grille basée sur le nombre de membres
   const gridSize = Math.ceil(Math.sqrt(members.length));
@@ -91,8 +122,8 @@ export default function Organigramme() {
 
   return (
     <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center relative">
-      {/* Layout Desktop - inchangé */}
-      <div className="hidden sm:flex gap-12 w-full max-w-full h-full justify-center items-center px-8">
+      {/* Layout Desktop - à partir de lg (large screens) */}
+      <div className="hidden lg:flex gap-20 w-full max-w-full h-full justify-center items-center px-8">
         {/* Échiquier Desktop */}
         <div className="flex items-center justify-center flex-col">
           <h1 className="text-light mb-10 text-2xl">Un cabinet à taille humaine</h1>
@@ -259,8 +290,8 @@ export default function Organigramme() {
         </div>
       </div>
 
-      {/* Layout Mobile - avec popup */}
-      <div className="sm:hidden flex flex-col items-center justify-center w-full h-full p-4">
+      {/* Layout Mobile et Tablette - avec popup */}
+      <div className="lg:hidden flex flex-col items-center justify-center w-full h-full p-4">
         <h1 className="text-light mb-6 text-lg text-center">Un cabinet à taille humaine</h1>
         
         {/* Grille mobile compacte */}
@@ -327,10 +358,10 @@ export default function Organigramme() {
         </p>
       </div>
 
-      {/* Popup Mobile */}
+      {/* Popup Mobile et Tablette */}
       {isMobilePopupOpen && selectedIndex !== null && members[selectedIndex] && (
         <div 
-          className="sm:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="lg:hidden fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           style={{ overflowY: 'hidden' }}
           onClick={() => setIsMobilePopupOpen(false)}
         >

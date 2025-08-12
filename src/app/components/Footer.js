@@ -86,7 +86,7 @@ export default function Footer() {
                                 <strong>Copyright</strong> &copy; {new Date().getFullYear()} <strong className="text-accent">NEOMI</strong>
                             </p>
                             <p className="text-xs mt-1">
-                                Développé par PJ Girault
+                                Développé par <a target="_blank" href="https://www.linkedin.com/in/pjgirault/">Paul-Jean GIRAULT</a> 
                             </p>
                         </div>
                     </div>

@@ -177,7 +177,7 @@ export default function Organigramme() {
         </div>
 
         {/* Panneau d'informations à droite */}
-        <div className="w-[450px] h-full flex flex-col">
+        <div className="w-[450px] h-4/5 flex flex-col">
           {displayedMember ? (
             <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl p-8 border border-slate-700 shadow-2xl animate-in slide-in-from-right-5 duration-500 h-full overflow-hidden flex flex-col">
               {/* Photo principale */}

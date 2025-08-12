@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { useAvis, createAvis, updateAvisField, deleteAvis } from "../../hooks/useAvis";
 
 export default function AdminAvisPage() {

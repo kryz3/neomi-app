@@ -36,6 +36,11 @@ const organigrammeSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
+  },
+  ordre: {
+    type: Number,
+    required: true,
+    unique: true
   }
 }, {
   timestamps: true

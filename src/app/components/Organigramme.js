@@ -31,7 +31,14 @@ export default function Organigramme() {
           description: member.description,
           mail: member.email,
           phone: member.phone,
+          ordre: member.ordre, // Conserver l'ordre pour le debug
         }));
+        
+        // Debug: Vérifier l'ordre des membres
+        console.log('Membres reçus dans l\'ordre:', transformedMembers.map(m => ({ 
+          name: m.name, 
+          ordre: m.ordre 
+        })));
         
         setMembers(transformedMembers);
       } catch (error) {
@@ -125,12 +132,13 @@ export default function Organigramme() {
       {/* Layout Desktop - à partir de lg (large screens) */}
       <div className="hidden lg:flex gap-20 w-full max-w-full h-full justify-center items-center px-8">
         {/* Échiquier Desktop */}
-        <div className="flex items-center justify-center flex-col">
-          <h1 className="text-light mb-10 text-2xl">Un cabinet à taille humaine</h1>
-          <div 
-            className="grid gap-3 aspect-square w-[500px] h-[500px]"
-            style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
-          >
+        <div className="flex items-center justify-center flex-col h-full">
+          <div className="flex flex-col items-center">
+            <h1 className="text-light mb-8 text-2xl">Un cabinet à taille humaine</h1>
+            <div 
+              className="grid gap-3 aspect-square w-[500px] h-[500px]"
+              style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
+            >
             {gridCells.map((member, index) => {
               const row = Math.floor(index / gridSize);
               const col = index % gridSize;
@@ -205,10 +213,11 @@ export default function Organigramme() {
               );
             })}
           </div>
+          </div>
         </div>
 
         {/* Panneau d'informations à droite */}
-        <div className="w-[450px] h-4/5 flex flex-col">
+        <div className="w-[450px] h-4/5 flex flex-col justify-center">
           {displayedMember ? (
             <div className="bg-slate-800/90 backdrop-blur-xl rounded-2xl p-8 border border-slate-700 shadow-2xl animate-in slide-in-from-right-5 duration-500 h-full overflow-hidden flex flex-col">
               {/* Photo principale */}
@@ -291,8 +300,8 @@ export default function Organigramme() {
       </div>
 
       {/* Layout Mobile et Tablette - avec popup */}
-      <div className="lg:hidden flex flex-col items-center justify-center w-full h-full p-4">
-        <h1 className="text-light mb-6 text-lg text-center">Un cabinet à taille humaine</h1>
+      <div className="lg:hidden flex flex-col items-center justify-center w-full h-full p-4 pt-8">
+        <h1 className="text-light mb-4 text-lg text-center">Un cabinet à taille humaine</h1>
         
         {/* Grille mobile compacte */}
         <div 

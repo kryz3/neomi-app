@@ -204,6 +204,9 @@ export default function AdminOrganigrammePage() {
                       Rôle
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Ordre
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Description
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -253,6 +256,11 @@ export default function AdminOrganigrammePage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {membreItem.role}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {membreItem.ordre}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
                         {membreItem.description}
                       </td>
@@ -284,6 +292,7 @@ export default function AdminOrganigrammePage() {
         <CreateOrganigrammeModal
           onClose={() => setShowCreateForm(false)}
           onSubmit={handleCreateOrganigramme}
+          existingOrganigrammes={organigrammes}
         />
       )}
 
@@ -293,6 +302,7 @@ export default function AdminOrganigrammePage() {
           organigramme={selectedOrganigramme}
           onClose={() => setSelectedOrganigramme(null)}
           onUpdate={handleUpdateField}
+          existingOrganigrammes={organigrammes}
         />
       )}
     </div>
@@ -300,7 +310,34 @@ export default function AdminOrganigrammePage() {
 }
 
 // Composant Modal pour créer un membre
-function CreateOrganigrammeModal({ onClose, onSubmit }) {
+function CreateOrganigrammeModal({ onClose, onSubmit, existingOrganigrammes }) {
+  // Calculer les ordres disponibles et utilisés
+  const getOrdresInfo = () => {
+    const existingOrdres = existingOrganigrammes
+      .map(m => m.ordre)
+      .filter(ordre => ordre != null && ordre !== undefined)
+      .sort((a, b) => a - b);
+    
+    const usedOrdres = new Set(existingOrdres);
+    const availableOrdres = [];
+    
+    // Trouver les ordres disponibles de 1 à max+3
+    const maxOrdre = Math.max(...existingOrdres, 0);
+    for (let i = 1; i <= maxOrdre + 3; i++) {
+      if (!usedOrdres.has(i)) {
+        availableOrdres.push(i);
+      }
+    }
+    
+    return {
+      used: existingOrdres,
+      available: availableOrdres,
+      next: availableOrdres[0] || maxOrdre + 1
+    };
+  };
+
+  const ordresInfo = getOrdresInfo();
+
   const [formData, setFormData] = useState({
     name: "",
     firstname: "",
@@ -308,9 +345,11 @@ function CreateOrganigrammeModal({ onClose, onSubmit }) {
     phone: "",
     photo: "",
     description: "",
-    role: ""
+    role: "",
+    ordre: ordresInfo.next
   });
   const [uploading, setUploading] = useState(false);
+  const [ordreError, setOrdreError] = useState("");
 
   const handleImageUpload = async (file) => {
     setUploading(true);
@@ -336,16 +375,40 @@ function CreateOrganigrammeModal({ onClose, onSubmit }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  // Validation de l'ordre en temps réel
+  const handleOrdreChange = (newOrdre) => {
+    const ordre = parseInt(newOrdre) || 1;
+    setFormData(prev => ({ ...prev, ordre }));
+    
+    if (ordresInfo.used.includes(ordre)) {
+      setOrdreError(`L'ordre ${ordre} est déjà utilisé par un autre membre`);
+    } else {
+      setOrdreError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation des champs requis (photo devient optionnelle)
-    if (!formData.name || !formData.firstname || !formData.email || !formData.phone || !formData.description || !formData.role) {
+    // Validation des champs requis
+    if (!formData.name || !formData.firstname || !formData.email || !formData.phone || !formData.description || !formData.role || !formData.ordre) {
       alert('Tous les champs sont requis');
       return;
     }
     
-    onSubmit(formData);
+    // Validation de l'ordre
+    if (ordresInfo.used.includes(formData.ordre)) {
+      setOrdreError(`L'ordre ${formData.ordre} est déjà utilisé par un autre membre`);
+      return;
+    }
+    
+    try {
+      await onSubmit(formData);
+    } catch (error) {
+      if (error.message.includes('ordre')) {
+        setOrdreError(error.message);
+      }
+    }
   };
 
   return (
@@ -451,6 +514,40 @@ function CreateOrganigrammeModal({ onClose, onSubmit }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ordre d'affichage *
+            </label>
+            <input
+              type="number"
+              required
+              min="1"
+              value={formData.ordre}
+              onChange={(e) => handleOrdreChange(e.target.value)}
+              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
+                ordreError 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-300 focus:ring-accent'
+              }`}
+            />
+            {ordreError ? (
+              <p className="text-xs text-red-600 mt-1">{ordreError}</p>
+            ) : (
+              <div className="mt-1">
+                <p className="text-xs text-gray-500">Position dans l'organigramme (plus petit = affiché en premier)</p>
+                <p className="text-xs text-green-600 mt-1">
+                  <strong>Ordres disponibles:</strong> {ordresInfo.available.slice(0, 10).join(', ')}
+                  {ordresInfo.available.length > 10 && '...'}
+                </p>
+                {ordresInfo.used.length > 0 && (
+                  <p className="text-xs text-orange-600">
+                    <strong>Ordres utilisés:</strong> {ordresInfo.used.join(', ')}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Description *
             </label>
             <textarea
@@ -489,11 +586,37 @@ function CreateOrganigrammeModal({ onClose, onSubmit }) {
 }
 
 // Composant Modal pour modifier un membre
-function EditOrganigrammeModal({ organigramme, onClose, onUpdate }) {
+function EditOrganigrammeModal({ organigramme, onClose, onUpdate, existingOrganigrammes }) {
   const [editingField, setEditingField] = useState(null);
   const [tempValue, setTempValue] = useState("");
   const [uploading, setUploading] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "", field: "" });
+  const [ordreError, setOrdreError] = useState("");
+
+  // Calculer les ordres disponibles (exclure l'ordre actuel)
+  const getOrdresInfo = () => {
+    const existingOrdres = existingOrganigrammes
+      .filter(m => m._id !== organigramme._id) // Exclure le membre actuel
+      .map(m => m.ordre)
+      .filter(ordre => ordre != null && ordre !== undefined)
+      .sort((a, b) => a - b);
+    
+    const usedOrdres = new Set(existingOrdres);
+    const availableOrdres = [];
+    
+    // Trouver les ordres disponibles de 1 à max+3
+    const maxOrdre = Math.max(...existingOrdres, organigramme.ordre || 0);
+    for (let i = 1; i <= maxOrdre + 3; i++) {
+      if (!usedOrdres.has(i)) {
+        availableOrdres.push(i);
+      }
+    }
+    
+    return {
+      used: existingOrdres,
+      available: availableOrdres
+    };
+  };
 
   const showLocalNotification = (message, type = "success", field = "") => {
     setNotification({ message, type, field });
@@ -504,16 +627,34 @@ function EditOrganigrammeModal({ organigramme, onClose, onUpdate }) {
     setEditingField(field);
     setTempValue(currentValue || "");
     setNotification({ message: "", type: "", field: "" }); // Clear notifications when editing
+    setOrdreError(""); // Clear ordre errors
   };
 
   const handleSave = async () => {
+    // Validation spécifique pour l'ordre
+    if (editingField === 'ordre') {
+      const ordresInfo = getOrdresInfo();
+      const newOrdre = parseInt(tempValue);
+      
+      if (ordresInfo.used.includes(newOrdre)) {
+        setOrdreError(`L'ordre ${newOrdre} est déjà utilisé par un autre membre`);
+        showLocalNotification(`L'ordre ${newOrdre} est déjà utilisé`, "error", editingField);
+        return;
+      }
+    }
+    
     try {
       const result = await onUpdate(organigramme._id, editingField, tempValue);
       if (result && result.success) {
         setEditingField(null);
+        setOrdreError("");
         showLocalNotification(`${editingField} mis à jour avec succès ✓`, "success", editingField);
       } else {
-        showLocalNotification(result?.error || `Erreur lors de la mise à jour`, "error", editingField);
+        const errorMsg = result?.error || `Erreur lors de la mise à jour`;
+        if (errorMsg.includes('ordre')) {
+          setOrdreError(errorMsg);
+        }
+        showLocalNotification(errorMsg, "error", editingField);
       }
     } catch (error) {
       showLocalNotification(`Erreur lors de la mise à jour`, "error", editingField);
@@ -775,6 +916,98 @@ function EditOrganigrammeModal({ organigramme, onClose, onUpdate }) {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Ordre */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Ordre d'affichage</label>
+            {editingField === "ordre" ? (
+              <div className="space-y-2">
+                <input
+                  type="number"
+                  min="1"
+                  value={tempValue}
+                  onChange={(e) => {
+                    const newValue = parseInt(e.target.value) || 1;
+                    setTempValue(newValue);
+                    
+                    // Vérification en temps réel
+                    const ordresInfo = getOrdresInfo();
+                    if (ordresInfo.used.includes(newValue)) {
+                      setOrdreError(`L'ordre ${newValue} est déjà utilisé par un autre membre`);
+                    } else {
+                      setOrdreError("");
+                    }
+                  }}
+                  className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
+                    ordreError 
+                      ? 'border-red-300 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                />
+                {ordreError ? (
+                  <p className="text-xs text-red-600">{ordreError}</p>
+                ) : (
+                  <div>
+                    <p className="text-xs text-gray-500">Position dans l'organigramme (plus petit = affiché en premier)</p>
+                    {(() => {
+                      const ordresInfo = getOrdresInfo();
+                      return (
+                        <div className="mt-1">
+                          <p className="text-xs text-green-600">
+                            <strong>Ordres disponibles:</strong> {ordresInfo.available.slice(0, 10).join(', ')}
+                            {ordresInfo.available.length > 10 && '...'}
+                          </p>
+                          {ordresInfo.used.length > 0 && (
+                            <p className="text-xs text-orange-600">
+                              <strong>Ordres utilisés:</strong> {ordresInfo.used.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <button 
+                    onClick={handleSave} 
+                    disabled={!!ordreError}
+                    className={`px-3 py-2 text-white rounded-md ${
+                      ordreError 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-green-500 hover:bg-green-600'
+                    }`}
+                  >
+                    ✓
+                  </button>
+                  <button onClick={() => {
+                    setEditingField(null);
+                    setOrdreError("");
+                  }} className="px-3 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
+                    ✕
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div 
+                onClick={() => handleEdit("ordre", organigramme.ordre)}
+                className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
+                  notification.field === 'ordre' && notification.type === 'success'
+                    ? 'border-green-300 bg-green-50'
+                    : 'border-gray-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span>Ordre: {organigramme.ordre}</span>
+                  {notification.field === 'ordre' && notification.type === 'success' && (
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            )}
+            <p className="text-xs text-gray-500 mt-1">Position dans l'organigramme (plus petit = affiché en premier)</p>
           </div>
 
           {/* Description */}

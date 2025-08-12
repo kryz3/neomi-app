@@ -29,7 +29,7 @@ export async function POST(request) {
     const body = await request.json();
     
     // Validation des champs requis (photo devient optionnelle)
-    const requiredFields = ['name', 'firstname', 'email', 'phone', 'description', 'role'];
+    const requiredFields = ['name', 'firstname', 'email', 'phone', 'description', 'role', 'ordre'];
     const missingFields = requiredFields.filter(field => !body[field]);
     
     if (missingFields.length > 0) {

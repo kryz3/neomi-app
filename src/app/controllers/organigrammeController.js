@@ -5,7 +5,10 @@ import Organigramme from '../models/Organigramme';
 export const getOrganigrammes = async () => {
   try {
     await dbConnect();
-    const organigrammes = await Organigramme.find({}).sort({ createdAt: -1 });
+    
+    // Récupérer tous les membres triés par ordre
+    const organigrammes = await Organigramme.find({}).sort({ ordre: 1 });
+    
     return { success: true, data: organigrammes };
   } catch (error) {
     console.error('Erreur getOrganigrammes:', error);
@@ -23,6 +26,17 @@ export const createOrganigramme = async (organigrammeData) => {
       organigrammeData.photo = '/organigramme/default.webp';
     }
 
+    // Vérifier si l'ordre est déjà utilisé
+    if (organigrammeData.ordre) {
+      const existingOrganigramme = await Organigramme.findOne({ ordre: organigrammeData.ordre });
+      if (existingOrganigramme) {
+        return {
+          success: false,
+          error: `L'ordre ${organigrammeData.ordre} est déjà utilisé par un autre membre`
+        };
+      }
+    }
+
     const organigramme = new Organigramme(organigrammeData);
     await organigramme.save();
     
@@ -32,6 +46,15 @@ export const createOrganigramme = async (organigrammeData) => {
     };
   } catch (error) {
     console.error('Erreur lors de la création du membre:', error);
+    
+    // Gestion spécifique des erreurs de contrainte unique
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.ordre) {
+      return {
+        success: false,
+        error: `L'ordre ${error.keyValue.ordre} est déjà utilisé par un autre membre`
+      };
+    }
+    
     return {
       success: false,
       error: error.message
@@ -43,6 +66,20 @@ export const createOrganigramme = async (organigrammeData) => {
 export const updateOrganigramme = async (id, updateData) => {
   try {
     await dbConnect();
+
+    // Si on met à jour l'ordre, vérifier qu'il n'est pas déjà utilisé
+    if (updateData.ordre) {
+      const existingOrganigramme = await Organigramme.findOne({ 
+        ordre: updateData.ordre,
+        _id: { $ne: id } // Exclure le membre actuel
+      });
+      if (existingOrganigramme) {
+        return {
+          success: false,
+          error: `L'ordre ${updateData.ordre} est déjà utilisé par un autre membre`
+        };
+      }
+    }
 
     const organigramme = await Organigramme.findByIdAndUpdate(
       id,
@@ -63,6 +100,15 @@ export const updateOrganigramme = async (id, updateData) => {
     };
   } catch (error) {
     console.error('Erreur lors de la mise à jour du membre:', error);
+    
+    // Gestion spécifique des erreurs de contrainte unique
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.ordre) {
+      return {
+        success: false,
+        error: `L'ordre ${error.keyValue.ordre} est déjà utilisé par un autre membre`
+      };
+    }
+    
     return {
       success: false,
       error: error.message

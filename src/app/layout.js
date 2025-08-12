@@ -14,8 +14,8 @@ export default function RootLayout({ children }) {
         <Header/>
         <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 4rem)", overflowY: "auto" }}>
           {children}
+          <Footer />
         </main>
-        <Footer />
       </body>
     </html>
     </ViewTransitions>

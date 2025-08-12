@@ -70,6 +70,8 @@ export default function Organigramme() {
       mail: "ines@neomi.fr",
       phone: "+33 6 78 29 60 32",
     },
+
+    
   ];
 
   // Calculer la taille optimale de la grille basée sur le nombre de membres

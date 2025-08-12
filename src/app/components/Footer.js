@@ -9,7 +9,7 @@ export default function Footer() {
                 {/* Section principale */}
                 <div className="grid md:grid-cols-3 gap-8 mb-8">
                     {/* Call to action */}
-                    <div className="md:col-span-2">
+                    <div className="md:col-span-2 text-center md:text-left">
                         <h2 className="text-2xl md:text-3xl font-bold mb-4 text-accent">
                             Prêt à vous lancer ?
                         </h2>
@@ -23,21 +23,21 @@ export default function Footer() {
                     </div>
 
                     {/* Contact info */}
-                    <div className="space-y-4">
-                        <h3 className="text-xl font-semibold mb-4 text-accent md:text-right">
+                    <div className="space-y-4 text-center md:text-right">
+                        <h3 className="text-xl font-semibold mb-4 text-accent">
                             Nous contacter
                         </h3>
-                        <div className="space-y-3 md:text-right">
+                        <div className="space-y-3">
                             <a 
                                 href="mailto:contact@neomi.fr"
-                                className="flex items-center gap-3 text-white/90 hover:text-accent transition-colors duration-300 md:justify-end"
+                                className="flex items-center gap-3 text-white/90 hover:text-accent transition-colors duration-300 justify-center md:justify-end"
                             >
                                 <span className="text-lg order-2 md:order-1">contact@neomi.fr</span>
 
                             </a>
                             <a 
                                 href="tel:+33678296028"
-                                className="flex items-center gap-3 text-white/90 hover:text-accent transition-colors duration-300 md:justify-end"
+                                className="flex items-center gap-3 text-white/90 hover:text-accent transition-colors duration-300 justify-center md:justify-end"
                             >
                                 <span className="text-lg order-2 md:order-1">+33 6 78 29 60 28</span>
 

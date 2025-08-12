@@ -1,51 +1,27 @@
-import User from "@/models/User";
-import { connectToDatabase } from "@/lib/mongodb";
 import { SignJWT } from "jose";
 
-export async function registerUser(req) {
-  await connectToDatabase();
-
-  const { username, password } = await req.json();
-
-  if (!username || !password) {
-    return new Response(JSON.stringify({ error: "Tous les champs sont requis" }), { status: 400 });
-  }
-
-  // Vérif si l'utilisateur existe déjà
-  const existingUser = await User.findOne({ username });
-  if (existingUser) {
-    return new Response(JSON.stringify({ error: "Nom d'utilisateur déjà pris" }), { status: 400 });
-  }
-
-  // Création du nouvel utilisateur
-  const newUser = new User({ username, password });
-  await newUser.save();
-
-  return new Response(JSON.stringify({ message: "Utilisateur créé avec succès" }), { status: 201 });
-}
 
 export async function loginUser(req) {
-  await connectToDatabase();
-
   const { username, password } = await req.json();
 
   if (!username || !password) {
     return new Response(JSON.stringify({ error: "Tous les champs sont requis" }), { status: 400 });
   }
 
-  const user = await User.findOne({ username });
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Utilisateur introuvable" }), { status: 404 });
+  // Vérifier avec les variables d'environnement
+  if (username !== process.env.LOGIN || password !== process.env.PASSWORD) {
+    return new Response(JSON.stringify({ error: "Identifiants incorrects" }), { status: 401 });
   }
 
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
-    return new Response(JSON.stringify({ error: "Mot de passe incorrect" }), { status: 401 });
-  }
-
-  // Créer le token JWT
+  // Créer le token JWT avec des claims spécifiques
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  const token = await new SignJWT({ userId: user._id, username: user.username })
+  const token = await new SignJWT({ 
+    userId: "admin", 
+    username: username,
+    iat: Math.floor(Date.now() / 1000),
+    loginTime: Date.now(),
+    validLogin: true // Claim spécifique pour valider que c'est un vrai login
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("7d")
     .sign(secret);
@@ -53,7 +29,6 @@ export async function loginUser(req) {
   // Créer la réponse avec le cookie
   const response = new Response(JSON.stringify({ 
     message: "Connexion réussie",
-    user: { id: user._id, username: user.username }
   }), { status: 200 });
 
   // Définir le cookie avec le token

@@ -369,7 +369,7 @@ export default function Organigramme() {
             </div>
 
             {/* Contenu popup mobile */}
-            <div className="space-y-6">
+            <div className="space-y-6 z-50">
               {/* À propos */}
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3">À propos</h3>

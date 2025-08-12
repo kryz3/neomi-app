@@ -1,6 +1,4 @@
 import { jwtVerify } from "jose";
-import { connectToDatabase } from "@/lib/mongodb";
-import User from "@/models/User";
 
 export async function GET(req) {
   const token = req.cookies?.get("authToken")?.value;
@@ -13,16 +11,16 @@ export async function GET(req) {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
     
-    await connectToDatabase();
-    const user = await User.findById(payload.userId).select("-password");
-    
-    if (!user) {
-      return new Response(JSON.stringify({ authenticated: false }), { status: 401 });
+    // Vérifications supplémentaires pour éviter les tokens forgés
+    if (!payload.validLogin || 
+        payload.userId !== "admin" || 
+        payload.username !== process.env.LOGIN) {
+      throw new Error("Token invalide");
     }
-
+    
     return new Response(JSON.stringify({ 
       authenticated: true,
-      user: { id: user._id, username: user.username }
+      user: { id: payload.userId, username: payload.username }
     }), { status: 200 });
     
   } catch (error) {

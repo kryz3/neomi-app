@@ -25,7 +25,9 @@ export default function RootLayout({ children }) {
     <html lang="fr">
       <body className="scroll-smooth">
         <Header/>
-        {children}
+        <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 4rem)", overflowY: "auto" }}>
+          {children}
+        </main>
       </body>
     </html>
     </ViewTransitions>

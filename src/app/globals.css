@@ -84,3 +84,17 @@ html, body {
   color: var(--color-primary);
 }
 
+/* Animation rainbow */
+@keyframes rainbow-slide {
+  from {
+    right: -25vw;
+  }
+  to {
+    right: 125vw;
+  }
+}
+
+.animate-rainbow-slide {
+  animation: rainbow-slide linear infinite;
+}
+

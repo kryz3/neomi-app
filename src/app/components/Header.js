@@ -16,7 +16,7 @@ export default function Header() {
     ];
 
     return(
-        <header className=" z-999 w-full h-16 fixed top-0 flex items-center justify-between px-8 backdrop-blur-sm bg-light shadow-sm uppercase font-medium">
+        <header className=" z-999 w-full h-16 sticky top-0 flex items-center justify-between px-8 backdrop-blur-sm bg-light shadow-sm uppercase font-medium">
             <Link href="/" className="flex items-center h-full ">
                 <img src="/neomi-logo.png" alt="Neomi Logo" className="sm:h-20 h-12  w-auto"/>
             </Link>

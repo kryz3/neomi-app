@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/neomi-db";
@@ -8,7 +9,7 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect() {
+export async function connectToDatabase() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
@@ -30,5 +31,3 @@ async function dbConnect() {
   cached.conn = await cached.promise;
   return cached.conn;
 }
-
-export default dbConnect;

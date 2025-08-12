@@ -1,68 +1,20 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { useAvis } from "../hooks/useAvis";
 
 export default function Avis() {
-  const avisList = [
-    {
-      entreprise: "XEFI",
-      logo: "/avis/xefi.webp",
-      referent: "Jerome CANU",
-      role: "Dirigeant",
-      recommandation: `Nous sommes clients depuis plus de huit ans auprès du cabinet Neomi.
-Nous apprécions l'écoute, le conseil et la multitude de services : RH, expertise comptable et autres.
-C'est un cabinet à taille humaine capable de s'adapter à différentes formes juridiques.`,
-    },
-    {
-      entreprise: "O'Sign",
-      logo: "/avis/osign.webp",
-      referent: "Houcine CHEDRI",
-      role: "Gérant",
-      recommandation: `J'ai connu la société Neomi en novembre 2018.
-Ce qui m'a plu dans cette collaboration, c'est la disponibilité, les conseils apportés ainsi que cette relation de confiance mutuelle.
-Pour toutes ces raisons, je ne peux que recommander ce cabinet comptable.`,
-    },
-    {
-      entreprise: "SOS Raymond",
-      logo: null,
-      referent: "Edwige Navarro",
-      role: "Dirigeante",
-      recommandation: `Je travaille avec Neomi depuis la création de mon entreprise en octobre 2020, suite à la recommandation de mon avocate. Ce qui me plaît chez Neomi : les échanges faciles et réguliers au cours des années écoulées, ainsi que la disponibilité et les explications claires et détaillées selon le niveau de compréhension.`,
-    },
-    {
-      entreprise: "Natreflexo",
-      logo: "/avis/natreflexo.webp",
-      referent: "Nathalie MAYENS",
-      role: "Gérante",
-      recommandation: `Je travaille avec le Cabinet NEOMI depuis 2018, qui m'a été chaleureusement recommandé par une relation commune.
-Résultat : Gain immédiat pour moi de 20% de mon CA quant à mon régime de TVA. Professionnalisme et disponibilité. Neomi est un vrai partenaire, réactif et force de proposition.`,
-    },
-    {
-      entreprise: "CANIS CONSULTING",
-      logo: null,
-      referent: "Abdelhafid CHABANE",
-      role: "Président",
-      recommandation: `Je travaille avec le cabinet Neomi depuis 5 ans maintenant, suite à la recommandation d'un de mes collègues entrepreneur.
-Je travaille dans l'informatique, et fais entièrement confiance au cabinet Neomi pour tous mes travaux de comptabilité (bilan annuel, fiches de paie et diverses déclarations, partie juridique, optimisation fiscale…).
-Je recommande vivement le cabinet Neomi : en plus de réaliser les travaux avec beaucoup de professionnalisme, ils sont toujours à l'écoute et répondent à nos diverses questions et demandes de conseils.`,
-    },
-    {
-      entreprise: "VNAF",
-      logo: "/avis/vnaf.webp",
-      referent: "Nathalie VIAUD",
-      role: "Gérante",
-      recommandation: ` J'ai fait la connaissance du cabinet NEOMI lorsque j'exerçais mon activité en qualité de travailleur indépendant à COMBS LA VILLE. Nous avons dans un premier temps échangé sur des dossiers, puis c'est en 2017 que j'ai missionné le cabinet NEOMI afin qu'il s'occupe en direct de ma propre comptabilité.
-Un travail important et exhaustif de reprise de ma comptabilité a été réalisé et depuis cette période, ma comptabilité est parfaitement bien tenue par le cabinet, ce qui est un atout précieux pour moi pour exercer mon activité de la manière la plus sereine possible.
-Je recommande vivement le cabinet NEOMI pour ses qualités humaines, d'écoute et d'attention, ainsi que pour les compétences et le professionnalisme des membres de son équipe.`,
-    },
-  ];
+  // Utilisation du hook pour récupérer les avis depuis l'API
+  const { avis: avisList, loading, error } = useAvis();
 
-  // Nouveau coverflow 3D moderne, robuste et fluide
-  // On duplique la liste pour plus de cartes visibles et des transitions plus douces
-  const displayList = [...avisList, ...avisList];
-  const len = displayList.length;
+  // Tous les hooks doivent être appelés AVANT les return conditionnels
   const [currentIndex, setCurrentIndex] = useState(0);
   const autoplayRef = useRef(null);
   const [vw, setVw] = useState(0);
+
+  // Nouveau coverflow 3D moderne, robuste et fluide
+  // On duplique la liste pour plus de cartes visibles et des transitions plus douces
+  const displayList = avisList.length > 0 ? [...avisList, ...avisList] : [];
+  const len = displayList.length;
 
   // Mesure du viewport pour adapter l'espacement
   useEffect(() => {
@@ -83,11 +35,18 @@ Je recommande vivement le cabinet NEOMI pour ses qualités humaines, d'écoute e
   };
 
   useEffect(() => {
-    resetAutoplay();
-    return () => autoplayRef.current && clearInterval(autoplayRef.current);
+    if (len > 0) {
+      resetAutoplay();
+      return () => autoplayRef.current && clearInterval(autoplayRef.current);
+    }
   }, [currentIndex, len]);
 
-  // Centrage horizontal déterministe via math (pas de mesure DOM nécessaire)
+  // Utilitaire pour obtenir l'offset circulaire [-half..+half]
+  const circularOffset = (idx) => {
+    let off = (idx - currentIndex + len) % len; // [0..len-1]
+    if (off > len / 2) off = off - len; // vers [-floor..+floor]
+    return off; // négatif à gauche, positif à droite
+  };
 
   const goToPrevious = () => {
     setCurrentIndex((i) => (i - 1 + len) % len);
@@ -98,12 +57,38 @@ Je recommande vivement le cabinet NEOMI pour ses qualités humaines, d'écoute e
     resetAutoplay();
   };
 
-  // Utilitaire pour obtenir l'offset circulaire [-half..+half]
-  const circularOffset = (idx) => {
-    let off = (idx - currentIndex + len) % len; // [0..len-1]
-    if (off > len / 2) off = off - len; // vers [-floor..+floor]
-    return off; // négatif à gauche, positif à droite
-  };
+  // Gestion des états de chargement et d'erreur APRÈS tous les hooks
+  if (loading) {
+    return (
+      <div className="relative w-full h-[350px] md:h-[350] lg:h-[350px] overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement des avis...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="relative w-full h-[350px] md:h-[350] lg:h-[350px] overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Erreur lors du chargement des avis</p>
+          <p className="text-gray-500 text-sm">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (avisList.length === 0) {
+    return (
+      <div className="relative w-full h-[350px] md:h-[350] lg:h-[350px] overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Aucun avis disponible pour le moment.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
   <div className="relative w-full h-[350px] md:h-[350] lg:h-[350px] overflow-hidden">

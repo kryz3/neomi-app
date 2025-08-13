@@ -12,8 +12,8 @@ export default function Avis() {
   const [vw, setVw] = useState(0);
 
   // Nouveau coverflow 3D moderne, robuste et fluide
-  // On duplique la liste pour plus de cartes visibles et des transitions plus douces
-  const displayList = avisList.length > 0 ? [...avisList, ...avisList] : [];
+  // On utilise la liste originale sans duplication
+  const displayList = avisList;
   const len = displayList.length;
 
   // Mesure du viewport pour adapter l'espacement

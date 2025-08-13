@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import { useSecteur } from "../../hooks/useSecteur";
 
 export default function AdminSecteursPage() {

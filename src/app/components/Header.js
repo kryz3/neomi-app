@@ -1,6 +1,5 @@
 'use client';
-
-import { Link } from "next-view-transitions";
+import Link from "next/link";
 import { useState } from "react";
 import { useActiveRoute } from "../hooks/useActiveRoute";
 

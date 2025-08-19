@@ -153,6 +153,126 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {/* Section 5 - Notre histoire */}
+      <section
+        className="w-full flex items-center justify-center bg-primary flex-col snap-start px-8"
+        style={{ height: "calc(100vh - 4rem)" }}
+      >
+        <div className="max-w-6xl mx-auto text-center h-full flex flex-col justify-center">
+          {/* Version Desktop - Timeline en zigzag moderne */}
+          <div className="hidden md:flex relative flex-col items-center justify-center flex-1">
+            <div className="mb-12">
+              <p className="text-3xl uppercase text-center text-light">Notre histoire</p>
+            </div>
+            <div className="relative max-w-5xl mx-auto">
+              {/* Ligne de connexion principale */}
+              <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-accent via-secondary to-accent opacity-30 transform -translate-y-1/2"></div>
+              
+              {/* Container avec alternance haut/bas */}
+              <div className="grid grid-cols-6 gap-8 items-center">
+                
+                {/* 2016 - En haut */}
+                <div className="flex flex-col items-center group">
+                  <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 hover:bg-white/25 transition-all duration-300 mb-6 transform hover:-translate-y-2 shadow-lg">
+                    <h4 className="text-accent font-bold text-base mb-2">2016</h4>
+                    <p className="text-white text-sm text-center leading-tight">Création du cabinet à PARIS</p>
+                  </div>
+                  <div className="w-4 h-4 bg-accent rounded-full shadow-lg relative">
+                    <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <div className="w-px h-8 bg-accent/50"></div>
+                </div>
+
+                {/* 2018 - En bas */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-px h-8 bg-accent/50"></div>
+                  <div className="w-4 h-4 bg-accent rounded-full shadow-lg relative mb-6">
+                    <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 hover:bg-white/25 transition-all duration-300 transform hover:translate-y-2 shadow-lg">
+                    <h4 className="text-accent font-bold text-base mb-2">2018</h4>
+                    <p className="text-white text-sm text-center leading-tight">Mise en place d'un service RH</p>
+                  </div>
+                </div>
+
+                {/* 2019 - En haut */}
+                <div className="flex flex-col items-center group">
+                  <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 hover:bg-white/25 transition-all duration-300 mb-6 transform hover:-translate-y-2 shadow-lg">
+                    <h4 className="text-accent font-bold text-base mb-2">2019</h4>
+                    <p className="text-white text-sm text-center leading-tight">Développement en accompagnement clients et gestion du patrimoine</p>
+                  </div>
+                  <div className="w-4 h-4 bg-accent rounded-full shadow-lg relative">
+                    <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <div className="w-px h-8 bg-accent/50"></div>
+                </div>
+
+                {/* 2020 - En bas */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-px h-8 bg-accent/50"></div>
+                  <div className="w-4 h-4 bg-accent rounded-full shadow-lg relative mb-6">
+                    <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 hover:bg-white/25 transition-all duration-300 transform hover:translate-y-2 shadow-lg">
+                    <h4 className="text-accent font-bold text-base mb-2">2020</h4>
+                    <p className="text-white text-sm text-center leading-tight">Embauche d'un chargé de dossier en expertise comptable</p>
+                  </div>
+                </div>
+
+                {/* 2021 - En haut */}
+                <div className="flex flex-col items-center group">
+                  <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 hover:bg-white/25 transition-all duration-300 mb-6 transform hover:-translate-y-2 shadow-lg">
+                    <h4 className="text-accent font-bold text-base mb-2">2021</h4>
+                    <p className="text-white text-sm text-center leading-tight">Embauche d'une gestionnaire de paie et ouverture du bureau à Combs la ville</p>
+                  </div>
+                  <div className="w-4 h-4 bg-accent rounded-full shadow-lg relative">
+                    <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <div className="w-px h-8 bg-accent/50"></div>
+                </div>
+
+                {/* 2022 - En bas */}
+                <div className="flex flex-col items-center group">
+                  <div className="w-px h-8 bg-accent/50"></div>
+                  <div className="w-4 h-4 bg-accent rounded-full shadow-lg relative mb-6">
+                    <div className="absolute inset-0 bg-accent rounded-full animate-ping opacity-30"></div>
+                  </div>
+                  <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 hover:bg-white/25 transition-all duration-300 transform hover:translate-y-2 shadow-lg">
+                    <h4 className="text-accent font-bold text-base mb-2">2022</h4>
+                    <p className="text-white text-sm text-center leading-tight">Déménagement du bureau de Combs la ville à Moissy (Sextant)</p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Version Mobile - Timeline verticale simple */}
+          <div className="md:hidden space-y-6">
+            <div className="mb-6">
+              <p className="text-3xl uppercase text-center text-light">Notre histoire</p>
+            </div>
+            {[
+              { year: '2016', text: 'Création du cabinet à PARIS' },
+              { year: '2018', text: 'Mise en place d\'un service RH' },
+              { year: '2019', text: 'Développement de nos compétences en accompagnement clients et gestion du patrimoine' },
+              { year: '2020', text: 'Embauche d\'un chargé de dossier en expertise comptable' },
+              { year: '2021', text: 'Embauche d\'une gestionnaire de paie et ouverture du bureau à Combs la ville' },
+              { year: '2022', text: 'Déménagement du bureau de Combs la ville à Moissy (Sextant)' }
+            ].map((item, index) => (
+              <div key={item.year} className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-sm">{item.year}</span>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex-1">
+                  <p className="text-white text-sm">{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }

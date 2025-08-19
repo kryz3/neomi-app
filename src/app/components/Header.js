@@ -8,7 +8,6 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const liens = [
-        { href: "/about", label: "À propos"},
         { href: "/secteurs", label: "Secteurs"},
         { href: "/services", label: "Services"},
         { href: "/blog", label: "Blog"},
@@ -35,7 +34,7 @@ export default function Header() {
                     <Link 
                         href={link.href} 
                         key={link.href} 
-                        className={`text-xs sm:text-base hover:text-primary text-secondary transition-colors flex items-center h-full ${
+                        className={`text-xs sm:text-base hover:text-secondary text-primary transition-colors flex items-center h-full ${
                             isActive(link.href) 
                                 ? "text-accent font-semibold" 
                                 : "text-gray-700"

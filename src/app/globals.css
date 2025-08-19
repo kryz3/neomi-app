@@ -98,3 +98,10 @@ html, body {
   animation: rainbow-slide linear infinite;
 }
 
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+.hover\:text-secondary:hover {
+  color: var(--color-secondary);
+}

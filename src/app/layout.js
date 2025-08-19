@@ -8,12 +8,17 @@ import Footer from "./components/Footer";
 export const metadata = {
   title: {
     template: '%s',
-    default: 'Neomi - Solutions innovantes',
+    default: 'Admin - Neomi',
   },
-  description: "Neomi - Votre partenaire pour des solutions innovantes et personnalisées",
+  description: "Neomi - blabla",
   keywords: ["Neomi", "solutions", "services", "innovation"],
   authors: [{ name: "Neomi" }],
   creator: "Neomi",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',

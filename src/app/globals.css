@@ -105,3 +105,8 @@ html, body {
 .hover\:text-secondary:hover {
   color: var(--color-secondary);
 }
+
+
+.hover\:text-accent:hover {
+  color: var(--color-accent);
+}

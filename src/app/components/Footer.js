@@ -88,6 +88,20 @@ export default function Footer() {
                             <p className="text-xs mt-1">
                                 Développé par <a target="_blank" href="https://www.linkedin.com/in/pjgirault/">Paul-Jean GIRAULT</a> 
                             </p>
+                            <div className="flex flex-col md:flex-row gap-2 md:gap-4 mt-3 text-xs justify-center md:justify-end">
+                                <Link 
+                                    href="/mentions-legales" 
+                                    className="hover:text-accent transition-colors duration-300"
+                                >
+                                    Mentions légales
+                                </Link>
+                                <Link 
+                                    href="/politique-confidentialite" 
+                                    className="hover:text-accent transition-colors duration-300"
+                                >
+                                    Politique de confidentialité
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>

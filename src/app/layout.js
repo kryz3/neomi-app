@@ -28,7 +28,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ViewTransitions>
+
     <html lang="fr">
       <body className="scroll-smooth">
         <Header/>
@@ -39,6 +39,6 @@ export default function RootLayout({ children }) {
 
       </body>
     </html>
-    </ViewTransitions>
+
   );
 }

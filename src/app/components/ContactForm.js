@@ -58,10 +58,10 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit} className="space-y-2">
-        {/* Nom et Email sur la même ligne */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div className="w-full flex flex-col">
+      <form onSubmit={handleSubmit} className="space-y-1 md:space-y-2">
+        {/* Nom et Email sur la même ligne - responsive amélioré */}
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
           <div>
             <label htmlFor="name" className="block text-xs font-medium text-primary mb-1">
               Nom *
@@ -73,7 +73,7 @@ export default function ContactForm() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-2 py-1.5 text-xs border border-light rounded focus:border-accent focus:outline-none transition-colors duration-300 text-primary"
+              className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50"
               placeholder="Votre nom"
             />
           </div>
@@ -89,14 +89,14 @@ export default function ContactForm() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-2 py-1.5 text-xs border border-light rounded focus:border-accent focus:outline-none transition-colors duration-300 text-primary"
+              className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50"
               placeholder="votre@email.com"
             />
           </div>
         </div>
 
-        {/* Téléphone et Sujet sur la même ligne */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {/* Téléphone et Sujet sur la même ligne - responsive amélioré */}
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
           <div>
             <label htmlFor="phone" className="block text-xs font-medium text-primary mb-1">
               Téléphone
@@ -107,7 +107,7 @@ export default function ContactForm() {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-2 py-1.5 text-xs border border-light rounded focus:border-accent focus:outline-none transition-colors duration-300 text-primary"
+              className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50"
               placeholder="06 12 34 56 78"
             />
           </div>
@@ -121,7 +121,7 @@ export default function ContactForm() {
               name="subject"
               value={formData.subject}
               onChange={handleChange}
-              className="w-full px-2 py-1.5 text-xs border border-light rounded focus:border-accent focus:outline-none transition-colors duration-300 text-primary bg-white"
+              className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50 cursor-pointer"
             >
               <option value="">Sélectionnez</option>
               <option value="Information">Information</option>
@@ -146,29 +146,32 @@ export default function ContactForm() {
             value={formData.message}
             onChange={handleChange}
             required
-            rows={3}
-            className="w-full px-2 py-1.5 text-xs border border-light rounded focus:border-accent focus:outline-none transition-colors duration-300 text-primary resize-none"
+            rows={5}
+            className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary resize-none shadow-sm hover:shadow-md hover:border-accent/50"
             placeholder="Votre message..."
           />
         </div>
 
         {/* Message de statut */}
         {submitStatus && (
-          <div className={`p-2 rounded text-xs ${
+          <div className={`p-2 rounded-lg text-xs backdrop-blur-sm shadow-sm ${
             submitStatus.type === 'success' 
-              ? 'bg-info/10 border border-info text-info' 
-              : 'bg-accent/10 border border-accent text-accent'
+              ? 'bg-info/10 border border-info/30 text-info' 
+              : 'bg-accent/10 border border-accent/30 text-accent'
           }`}>
             {submitStatus.message}
           </div>
         )}
 
-        {/* Bouton de soumission */}
-        <div className="text-center pt-2">
+        {/* Bouton de soumission et note obligatoire */}
+        <div className="flex flex-col sm:flex-row items-center justify-between pt-1 md:pt-2 gap-1 md:gap-2">
+          <p className="text-xs text-secondary order-2 sm:order-1 whitespace-nowrap">
+            * Obligatoire
+          </p>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center px-4 py-1.5 bg-accent text-white text-xs font-medium rounded hover:bg-accent/90 focus:outline-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-3 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:-translate-y-0.5 order-1 sm:order-2 shrink-0"
           >
             {isSubmitting ? (
               <>
@@ -183,11 +186,6 @@ export default function ContactForm() {
             )}
           </button>
         </div>
-
-        {/* Note obligatoire */}
-        <p className="text-xs text-secondary text-center">
-          * Obligatoire
-        </p>
       </form>
     </div>
   );

@@ -58,7 +58,6 @@ export default function Footer() {
                                 height="150" 
                                 alt="Neomi logo"
                                 className=" transition-all transform duration-300 hover:-translate-y-1 "
-                                href="/"
 
                             />
                             </Link>

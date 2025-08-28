@@ -1,7 +1,7 @@
 
 import "./globals.css";
 import Header from "./components/Header";
-import { ViewTransitions } from 'next-view-transitions';
+
 import Footer from "./components/Footer";
 
 

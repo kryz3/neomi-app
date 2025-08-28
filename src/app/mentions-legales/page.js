@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Mentions légales - Neomi",
+  description: "Découvrez les mentions légales de Neomi",
+};
+
 export default function MentionsLegales() {
   return (
     <div className="w-full bg-light snap-start">

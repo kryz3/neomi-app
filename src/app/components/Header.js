@@ -11,6 +11,7 @@ export default function Header() {
         { href: "/secteurs", label: "Secteurs"},
         { href: "/services", label: "Services"},
         { href: "/blog", label: "Blog"},
+        { href: "/faq", label: "FAQ"},
         { href: "/contact", label: "Contact"},
     ];
 

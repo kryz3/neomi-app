@@ -8,82 +8,48 @@ export const metadata = {
 
 export default function Contact() {
   return (
-    <>
-      {/* Section principale avec formulaire */}
-      <section 
-        className="w-full flex items-center justify-center bg-light flex-col relative overflow-hidden snap-start"
-        style={{ height: "calc(100vh - 4rem)" }}
-      >
-        <RainbowBackground />
+    <section
+      className="relative flex items-center justify-center w-full snap-start overflow-hidden"
+      style={{ height: "calc(100vh - 4rem)" }}
+    >
+      {/* Fond moderne avec dégradé + légère texture animée */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-indigo-100" />
+      <div className="absolute inset-0 overflow-hidden">
+        <RainbowBackground className="opacity-20" />
+      </div>
+
+      <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-12 xl:px-20 h-full flex flex-col lg:flex-row items-center justify-center gap-6 md:gap-8 lg:gap-10 py-8">
         
-        <div className="container mx-auto px-4 py-4 relative z-10 h-full flex flex-col justify-center">
-          {/* En-tête */}
-          <div className="text-center mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-accent mb-2">
-              Contactez-nous
-            </h1>
-          </div>
+        {/* Bloc Formulaire */}
+        <div className="flex-1 w-full max-w-lg bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-4 md:p-6 lg:p-8">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-3 md:mb-4">Contactez-nous</h2>
+          <p className="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">
+            Remplissez le formulaire et notre équipe reviendra vers vous rapidement.
+          </p>
+          <ContactForm />
+        </div>
 
-          {/* Conteneur principal centré avec dimensions limitées */}
-          <div className="w-full md:w-2/3 h-full md:h-2/3 mx-auto flex flex-col md:flex-row gap-4">
-            {/* Formulaire de contact */}
-            <div className="flex-1 md:flex-[2] bg-white/90 backdrop-blur-sm rounded-lg shadow-xl p-4 overflow-y-auto">
-              <ContactForm />
+        {/* Bloc Adresses - 2 colonnes sur mobile uniquement */}
+        <div className="flex-1 w-full max-w-lg flex flex-col md:flex-col gap-2 md:gap-4 lg:gap-6">
+          {/* Sur mobile, les deux adresses côte à côte avec flex */}
+          <div className="flex flex-row md:flex-col gap-2 md:gap-4 lg:gap-6">
+            <div className="flex-1 bg-white/80 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-xl p-1.5 md:p-3 lg:p-8">
+              <h3 className="text-xs md:text-sm lg:text-xl font-semibold text-gray-800 mb-0.5 md:mb-1 lg:mb-2">Paris</h3>
+              <p className="text-gray-600 text-[10px] md:text-xs lg:text-base leading-tight md:leading-relaxed">
+                216 rue de Charenton<br />
+                75012 Paris
+              </p>
             </div>
-
-            {/* Informations de contact */}
-            <div className="md:flex-1 flex flex-row md:flex-col gap-2 md:gap-4">
-              {/* Adresse */}
-              <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 text-center hover:bg-white/90 transition-all duration-300 shadow-lg">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-accent rounded-full flex items-center justify-center mx-auto mb-1 md:mb-2">
-                  <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xs md:text-sm font-semibold text-primary mb-1">Adresse</h3>
-                <p className="text-xs text-secondary hidden md:block">
-                  123 Rue de la Comptabilité<br />
-                  75001 Paris
-                </p>
-                <p className="text-xs text-secondary md:hidden">
-                  Paris
-                </p>
-              </div>
-
-              {/* Téléphone */}
-              <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 text-center hover:bg-white/90 transition-all duration-300 shadow-lg">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-secondary rounded-full flex items-center justify-center mx-auto mb-1 md:mb-2">
-                  <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                </div>
-                <h3 className="text-xs md:text-sm font-semibold text-primary mb-1">Téléphone</h3>
-                <p className="text-xs text-secondary">
-                  <a href="tel:+33123456789" className="hover:text-accent transition-colors">
-                    01 23 45 67 89
-                  </a>
-                </p>
-              </div>
-
-              {/* Email */}
-              <div className="flex-1 bg-white/80 backdrop-blur-sm rounded-lg p-2 md:p-3 text-center hover:bg-white/90 transition-all duration-300 shadow-lg">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-info rounded-full flex items-center justify-center mx-auto mb-1 md:mb-2">
-                  <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xs md:text-sm font-semibold text-primary mb-1">Email</h3>
-                <p className="text-xs text-secondary">
-                  <a href="mailto:contact@neomi.fr" className="hover:text-accent transition-colors">
-                    contact@neomi.fr
-                  </a>
-                </p>
-              </div>
+            <div className="flex-1 bg-white/80 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-xl p-1.5 md:p-3 lg:p-8">
+              <h3 className="text-xs md:text-sm lg:text-xl font-semibold text-gray-800 mb-0.5 md:mb-1 lg:mb-2">Seine-et-Marne</h3>
+              <p className="text-gray-600 text-[10px] md:text-xs lg:text-base leading-tight md:leading-relaxed">
+                462 rue Benjamin Delessert<br />
+                77550 Moissy-Cramayel
+              </p>
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

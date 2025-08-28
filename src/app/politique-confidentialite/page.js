@@ -1,3 +1,8 @@
+export const metadata = {
+  title: "Politique de confidentialité - Neomi",
+  description: "Découvrez la politique de confidentialité de Neomi",
+};
+
 export default function PolitiqueConfidentialite() {
   return (
     <div className="w-full bg-light snap-start">

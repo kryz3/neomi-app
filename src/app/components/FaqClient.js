@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 export default function FaqClient() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -138,21 +138,21 @@ export default function FaqClient() {
   };
 
   // Fonction pour basculer l'ouverture des catégories
-  const toggleCategory = (category) => {
+  const toggleCategory = useCallback((category) => {
     setOpenCategories(prev => ({
       ...prev,
       [category]: !prev[category]
     }));
-  };
+  }, []);
 
   // Fonction pour basculer l'ouverture des questions
-  const toggleQuestion = (category, index) => {
+  const toggleQuestion = useCallback((category, index) => {
     const key = `${category}-${index}`;
     setOpenQuestions(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
-  };
+  }, []);
 
   // Filtrage des données en fonction de la recherche
   const filteredData = useMemo(() => {
@@ -176,10 +176,10 @@ export default function FaqClient() {
       <div className="max-w-4xl mx-auto">
         {/* En-tête */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-accent mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-accent mb-4 drop-shadow-lg">
             Foire aux Questions
           </h1>
-          <p className="text-lg text-primary max-w-2xl mx-auto">
+          <p className="text-lg text-primary max-w-2xl mx-auto drop-shadow-md">
             Retrouvez toutes les réponses à vos questions sur nos services comptables, 
             fiscaux et de gestion d'entreprise
           </p>
@@ -243,7 +243,7 @@ export default function FaqClient() {
                 {/* En-tête de catégorie */}
                 <button
                   onClick={() => toggleCategory(category)}
-                  className="w-full px-6 py-6 bg-gradient-to-r from-primary to-secondary text-white text-left flex items-center justify-between hover:from-secondary hover:to-accent transition-all duration-300"
+                  className="w-full px-6 py-6 bg-gradient-to-r from-primary to-secondary text-white text-left flex items-center justify-between hover:from-secondary hover:to-accent transition-colors duration-200"
                 >
                   <div className="flex items-center space-x-4 place-">
                     <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
@@ -256,7 +256,7 @@ export default function FaqClient() {
                       <p className="text-secondary text-sm">{questions.length} question{questions.length > 1 ? 's' : ''}</p>
                     </div>
                   </div>
-                  <div className={`transform transition-transform duration-300 ${openCategories[category] ? 'rotate-180' : ''}`}>
+                  <div className={`transform transition-transform duration-200 ${openCategories[category] ? 'rotate-180' : ''}`}>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -264,22 +264,22 @@ export default function FaqClient() {
                 </button>
 
                 {/* Contenu de la catégorie */}
-                <div className={`transition-all duration-500 ease-in-out ${openCategories[category] ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+                <div className={`transition-all duration-300 ease-out ${openCategories[category] ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
                   <div className="p-6 space-y-4">
                     {questions.map((item, index) => (
                       <div key={index} className="border border-accent/10 rounded-xl overflow-hidden">
                         <button
                           onClick={() => toggleQuestion(category, index)}
-                          className="w-full px-6 py-4 text-left bg-accent/5 hover:bg-accent/10 transition-all duration-300 flex items-center justify-between"
+                          className="w-full px-6 py-4 text-left bg-accent/5 hover:bg-accent/10 transition-colors duration-200 flex items-center justify-between"
                         >
                           <h4 className="text-lg font-semibold text-secondary pr-4">{item.question}</h4>
-                          <div className={`transform transition-transform duration-300 flex-shrink-0 ${openQuestions[`${category}-${index}`] ? 'rotate-180' : ''}`}>
+                          <div className={`transform transition-transform duration-200 flex-shrink-0 ${openQuestions[`${category}-${index}`] ? 'rotate-180' : ''}`}>
                             <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                           </div>
                         </button>
-                        <div className={`transition-all duration-500 ease-in-out ${openQuestions[`${category}-${index}`] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+                        <div className={`transition-all duration-300 ease-out ${openQuestions[`${category}-${index}`] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
                           <div className="px-6 py-4 bg-white">
                             <p className="text-secondary leading-relaxed">{item.reponse}</p>
                           </div>

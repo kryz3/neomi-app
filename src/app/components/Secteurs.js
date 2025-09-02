@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useSecteursData } from "../context/SecteursContext";
 import ChosenSecteur from "./ChosenSecteur";
+import FuturisticBackground from "./FuturisticBackground";
 
 export default function Secteurs() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -65,39 +66,9 @@ export default function Secteurs() {
         className="w-full relative overflow-hidden bg-gradient-to-br from-gray-900 via-primary to-gray-800 snap-start flex items-center justify-center"
         style={{ height: "calc(100vh - 5rem)" }}
       >
-      {/* Effet de grille futuriste en arrière-plan */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="grid grid-cols-12 grid-rows-8 h-full">
-          {Array.from({ length: 96 }).map((_, i) => (
-            <div
-              key={i}
-              className="border-accent/20 border-r border-b animate-pulse"
-              style={{
-                animationDelay: `${i * 50}ms`,
-                animationDuration: '4s'
-              }}
-            />
-          ))}
-        </div>
-      </div>
+        <FuturisticBackground />
 
-      {/* Particules flottantes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-accent rounded-full animate-ping"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative z-10 h-full flex flex-col justify-center items-center px-8 py-8 w-full">
+        <div className="relative z-10 h-full flex flex-col justify-center items-center px-8 py-8 w-full">
         {/* Titre futuriste */}
         <div className="text-center mb-8 md:mb-12">
 

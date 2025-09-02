@@ -69,7 +69,7 @@ export default function Organigramme() {
   // Si en cours de chargement
   if (loading) {
     return (
-      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center">
+      <div className="w-full h-full bg-transparent p-4 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
           <p className="text-white">Chargement de l'équipe...</p>
@@ -81,7 +81,7 @@ export default function Organigramme() {
   // Si erreur de chargement
   if (error) {
     return (
-      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center">
+      <div className="w-full h-full bg-transparent  p-4 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,7 +98,7 @@ export default function Organigramme() {
   // Si aucun membre trouvé
   if (members.length === 0) {
     return (
-      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center">
+      <div className="w-full h-full bg-transparentp-4 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,7 +128,7 @@ export default function Organigramme() {
   const displayedMember = displayedMemberIndex !== null && displayedMemberIndex < members.length ? members[displayedMemberIndex] : null;
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-black p-4 flex items-center justify-center relative">
+    <div className="w-full h-full bg-transparent p-4 flex items-center justify-center relative">
       {/* Layout Desktop - à partir de lg (large screens) */}
       <div className="hidden lg:flex gap-20 w-full max-w-full h-full justify-center items-center px-8">
         {/* Échiquier Desktop */}

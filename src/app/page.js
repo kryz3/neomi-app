@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Organigramme from "@/app/components/Organigramme";
 import RainbowBackground from "@/app/components/RainbowBackground";
+import FuturisticBackground from "@/app/components/FuturisticBackground";
 import Avis from "./components/Avis";
 
 export const metadata = {
@@ -33,10 +34,13 @@ export default function Home() {
       </section>
       {/* Section 2 */}
       <section
-        className="w-full flex items-center justify-center bg-secondary flex-col snap-start"
+        className="w-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-primary to-gray-800 flex-col snap-start relative overflow-hidden"
         style={{ height: "calc(100vh - 5rem)" }}
       >
-        <Organigramme />
+        <FuturisticBackground gridOpacity="opacity-15" particleCount={15} />
+        <div className="relative z-10">
+          <Organigramme />
+        </div>
       </section>
             {/* Section 3 */}
       <section

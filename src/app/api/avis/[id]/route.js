@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAvisById, updateAvis, updateAvisField, deleteAvis } from '../../../lib/avis.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// GET - Récupérer un avis par ID
+// GET - Récupérer un avis par ID (PUBLIC)
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
@@ -27,8 +28,14 @@ export async function GET(request, { params }) {
   }
 }
 
-// PUT - Mettre à jour un avis
+// PUT - Mettre à jour un avis (ADMIN SEULEMENT)
 export async function PUT(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
     const updateData = await request.json();
@@ -56,8 +63,14 @@ export async function PUT(request, { params }) {
   }
 }
 
-// PATCH - Mettre à jour un champ spécifique d'un avis
+// PATCH - Mettre à jour un champ spécifique d'un avis (ADMIN SEULEMENT)
 export async function PATCH(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -93,8 +106,14 @@ export async function PATCH(request, { params }) {
   }
 }
 
-// DELETE - Supprimer un avis
+// DELETE - Supprimer un avis (ADMIN SEULEMENT)
 export async function DELETE(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
     const result = await deleteAvis(id);

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAllAvis, createAvis } from '../../lib/avis.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// GET - Récupérer tous les avis
+// GET - Récupérer tous les avis (PUBLIC)
 export async function GET() {
   try {
     const result = await getAllAvis();
@@ -26,8 +27,14 @@ export async function GET() {
   }
 }
 
-// POST - Créer un nouvel avis
+// POST - Créer un nouvel avis (ADMIN SEULEMENT)
 export async function POST(request) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const avisData = await request.json();
     

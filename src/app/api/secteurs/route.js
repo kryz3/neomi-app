@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSecteurs, createSecteur } from '../../controllers/secteurController';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// GET /api/secteurs - Récupérer tous les secteurs
+// GET /api/secteurs - Récupérer tous les secteurs (PUBLIC)
 export async function GET() {
   try {
     const result = await getSecteurs();
@@ -23,8 +24,14 @@ export async function GET() {
   }
 }
 
-// POST /api/secteurs - Créer un nouveau secteur
+// POST /api/secteurs - Créer un nouveau secteur (ADMIN SEULEMENT)
 export async function POST(request) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const body = await request.json();
     

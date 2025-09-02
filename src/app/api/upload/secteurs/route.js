@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
 export async function POST(request) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const data = await request.formData();
     const file = data.get('file');

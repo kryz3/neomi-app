@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { updateOrganigramme, deleteOrganigramme } from '../../../controllers/organigrammeController';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// PUT /api/organigrammes/[id] - Mettre à jour un membre
+// PUT /api/organigrammes/[id] - Mettre à jour un membre (ADMIN SEULEMENT)
 export async function PUT(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -26,8 +33,14 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE /api/organigrammes/[id] - Supprimer un membre
+// DELETE /api/organigrammes/[id] - Supprimer un membre (ADMIN SEULEMENT)
 export async function DELETE(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
 

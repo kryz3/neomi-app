@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { updateAvisField } from '../../../../../lib/avis.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// PATCH - Mettre à jour un champ spécifique d'un avis
+// PATCH - Mettre à jour un champ spécifique d'un avis (ADMIN SEULEMENT)
 export async function PATCH(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id, field } = await params;
     const body = await request.json();

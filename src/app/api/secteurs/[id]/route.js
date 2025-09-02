@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { updateSecteur, deleteSecteur } from '../../../controllers/secteurController';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// PUT /api/secteurs/[id] - Mettre à jour un secteur
+// PUT /api/secteurs/[id] - Mettre à jour un secteur (ADMIN SEULEMENT)
 export async function PUT(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -26,8 +33,14 @@ export async function PUT(request, { params }) {
   }
 }
 
-// DELETE /api/secteurs/[id] - Supprimer un secteur
+// DELETE /api/secteurs/[id] - Supprimer un secteur (ADMIN SEULEMENT)
 export async function DELETE(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
 

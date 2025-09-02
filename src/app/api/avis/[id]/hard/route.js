@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
 import { AvisController } from '../../../../controllers/avisController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// DELETE - Suppression définitive d'un avis (pour l'administration)
+// DELETE - Suppression définitive d'un avis (ADMIN SEULEMENT)
 export async function DELETE(request, { params }) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const { id } = await params;
     

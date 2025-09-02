@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getOrganigrammes, createOrganigramme } from '../../controllers/organigrammeController';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
 
-// GET /api/organigrammes - Récupérer tous les membres
+// GET /api/organigrammes - Récupérer tous les membres (PUBLIC)
 export async function GET() {
   try {
     const result = await getOrganigrammes();
@@ -23,8 +24,14 @@ export async function GET() {
   }
 }
 
-// POST /api/organigrammes - Créer un nouveau membre
+// POST /api/organigrammes - Créer un nouveau membre (ADMIN SEULEMENT)
 export async function POST(request) {
+  // Vérifier l'authentification admin
+  const authCheck = await verifyAdminAuth(request);
+  if (authCheck.error) {
+    return unauthorizedResponse(authCheck.error);
+  }
+
   try {
     const body = await request.json();
     

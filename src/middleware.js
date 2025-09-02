@@ -4,22 +4,14 @@ import { jwtVerify } from "jose";
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function middleware(req) {
-  console.log("🔍 Middleware exécuté pour:", req.nextUrl.pathname);
-  
   const token = req.cookies?.get("authToken")?.value;
-  
-  console.log("🔑 Token trouvé:", token ? "Oui" : "Non");
 
   if (!token) {
-    console.log("❌ Pas de token - redirection vers /");
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   try {
-    console.log("🔍 Vérification du token JWT...");
     const { payload } = await jwtVerify(token, secret);
-    
-    console.log("✅ Token décodé, payload:", payload);
     
     // Vérifications supplémentaires pour éviter les tokens forgés
     if (!payload.validLogin || 
@@ -28,13 +20,11 @@ export async function middleware(req) {
       throw new Error("Token invalide");
     }
     
-    console.log("✅ Token valide - accès autorisé");
     const userId = payload.userId;
 
     // Ajouter les informations utilisateur aux headers pour les utiliser dans les pages
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set("x-user-id", userId);
-
 
     return NextResponse.next({
       request: {
@@ -42,9 +32,8 @@ export async function middleware(req) {
       }
     });
   } catch (error) {
-    console.error("Token JWT invalide:", error.message);
     // Supprimer le cookie invalide
-    const response = NextResponse.redirect(new URL("/", req.url));
+    const response = NextResponse.redirect(new URL("/login", req.url));
     response.headers.set("Set-Cookie", 
       "authToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict"
     );
@@ -52,7 +41,6 @@ export async function middleware(req) {
   }
 }
 
-// Apply middleware to both /profile and /admin
 export const config = {
   matcher: ["/admin/:path*"],
 };

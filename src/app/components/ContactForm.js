@@ -8,17 +8,18 @@ export default function ContactForm() {
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    message: '',
+    rgpdConsent: false
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -45,7 +46,8 @@ export default function ContactForm() {
           email: '',
           phone: '',
           subject: '',
-          message: ''
+          message: '',
+          rgpdConsent: false
         });
       } else {
         setSubmitStatus({ type: 'error', message: data.error || 'Une erreur est survenue' });
@@ -152,6 +154,26 @@ export default function ContactForm() {
           />
         </div>
 
+        {/* Case à cocher RGPD */}
+        <div className="flex items-start space-x-2 pt-1">
+          <input
+            type="checkbox"
+            id="rgpdConsent"
+            name="rgpdConsent"
+            checked={formData.rgpdConsent}
+            onChange={handleChange}
+            required
+            className="mt-0.5 w-4 h-4 text-accent bg-white border-2 border-light/40 rounded focus:ring-accent focus:ring-2 focus:ring-offset-0 transition-all duration-300"
+          />
+          <label htmlFor="rgpdConsent" className="text-xs text-primary leading-relaxed">
+            J'accepte que mes données personnelles soient collectées et traitées par Neomi pour répondre à ma demande. 
+            <a href="/politique-confidentialite" className="text-accent hover:text-accent/80 underline ml-1" target="_blank" rel="noopener noreferrer">
+              En savoir plus
+            </a>
+            <span className="text-accent ml-1">*</span>
+          </label>
+        </div>
+
         {/* Message de statut */}
         {submitStatus && (
           <div className={`p-2 rounded-lg text-xs backdrop-blur-sm shadow-sm ${
@@ -166,11 +188,11 @@ export default function ContactForm() {
         {/* Bouton de soumission et note obligatoire */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-1 md:pt-2 gap-1 md:gap-2">
           <p className="text-xs text-secondary order-2 sm:order-1 whitespace-nowrap">
-            * Obligatoire
+            * Champs obligatoires
           </p>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !formData.rgpdConsent}
             className="inline-flex items-center px-3 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:-translate-y-0.5 order-1 sm:order-2 shrink-0"
           >
             {isSubmitting ? (

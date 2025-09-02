@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
-import { useSecteur } from "../hooks/useSecteur";
+import { useSecteursData } from "../context/SecteursContext";
 import ChosenSecteur from "./ChosenSecteur";
 
 export default function Secteurs() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [selectedSecteur, setSelectedSecteur] = useState(null);
-  const { secteurs, loading, error } = useSecteur();
+  const { secteurs, isLoading, error } = useSecteursData();
 
   const handleSecteurClick = (secteur) => {
     setSelectedSecteur(secteur);
@@ -36,7 +36,7 @@ export default function Secteurs() {
     }, 100);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section 
         className="w-full relative overflow-hidden bg-gradient-to-br from-gray-900 via-primary to-gray-800 snap-start flex items-center justify-center"

@@ -1,9 +1,8 @@
 
 import "./globals.css";
 import Header from "./components/Header";
-
 import Footer from "./components/Footer";
-
+import { SecteursProvider } from "./context/SecteursContext";
 
 export const metadata = {
   title: {
@@ -28,17 +27,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-
     <html lang="fr">
       <body className="scroll-smooth">
-        <Header/>
-        <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
-          {children}
-                  <Footer/>
-        </main>
-
+        <SecteursProvider>
+          <Header/>
+          <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
+            {children}
+            <Footer/>
+          </main>
+        </SecteursProvider>
       </body>
     </html>
-
   );
 }

@@ -24,7 +24,7 @@ export default function Header() {
     };
 
     return(
-        <header className="z-40 w-full h-16 sticky top-0 flex items-center justify-between px-8 backdrop-blur-sm bg-light shadow-sm uppercase font-medium">
+        <header className="z-40 w-full h-20 sticky top-0 flex items-center justify-between px-8 backdrop-blur-sm bg-light shadow-sm uppercase font-medium">
             <Link href="/" className="flex items-center h-full" onClick={closeMenu}>
                 <img src="/neomi-logo.webp" alt="Neomi Logo" className="sm:h-20 h-12 w-auto"/>
             </Link>

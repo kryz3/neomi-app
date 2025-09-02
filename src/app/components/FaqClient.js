@@ -172,14 +172,14 @@ export default function FaqClient() {
   }, [searchTerm, faqData]);
 
   return (
-    <section className="w-full min-h-screen bg-light py-16 px-4 snap-start">
+    <section className="w-full py-16 px-4">
       <div className="max-w-4xl mx-auto">
         {/* En-tête */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-accent mb-4">
             Foire aux Questions
           </h1>
-          <p className="text-lg text-secondary max-w-2xl mx-auto">
+          <p className="text-lg text-primary max-w-2xl mx-auto">
             Retrouvez toutes les réponses à vos questions sur nos services comptables, 
             fiscaux et de gestion d'entreprise
           </p>

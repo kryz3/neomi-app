@@ -148,78 +148,71 @@ export default function ServicesComponent() {
   };
 
   return (
-    <section
-      className="w-full flex items-center justify-center bg-light flex-col snap-start px-4"
-      style={{ height: "calc(100vh - 4rem)" }}
-    >
-      {/* Navigation fixe en haut */}
-      <div className="w-full flex justify-center mb-4 md:mb-6 pt-3 md:pt-6 px-2">
-        <div className="flex bg-white rounded-lg shadow-sm border border-gray-200">
-          <button
-            onClick={() => setActive(1)}
-            className={`px-3 md:px-5 py-2 md:py-3 rounded-l-lg font-medium text-xs md:text-sm transition-colors duration-300 ${
-              active === 1
-                ? "bg-primary text-white"
-                : "text-gray-700 hover:text-primary hover:bg-primary/5"
-            }`}
-          >
-            <span className="block md:hidden">Comptable</span>
-            <span className="hidden md:block">Expertise Comptable</span>
-          </button>
-          <button
-            onClick={() => setActive(2)}
-            className={`px-3 md:px-5 py-2 md:py-3 font-medium text-xs md:text-sm transition-colors duration-300 border-l border-r border-gray-200 ${
-              active === 2
-                ? "bg-accent text-white"
-                : "text-gray-700 hover:text-accent hover:bg-accent/5"
-            }`}
-          >
-            <span className="block md:hidden">RH</span>
-            <span className="hidden md:block">Ressources humaines</span>
-          </button>
-          <button
-            onClick={() => setActive(3)}
-            className={`px-3 md:px-5 py-2 md:py-3 rounded-r-lg font-medium text-xs md:text-sm transition-colors duration-300 ${
-              active === 3
-                ? "bg-secondary text-white"
-                : "text-gray-700 hover:text-secondary hover:bg-secondary/5"
-            }`}
-          >
-            Conseils
-          </button>
-        </div>
+    <div className="flex flex-col items-center w-screen">
+      {/* Navigation */}
+      <div className="flex bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+        <button
+          onClick={() => setActive(1)}
+          className={`px-3 md:px-5 py-2 md:py-3 rounded-l-lg font-medium text-xs md:text-sm transition-colors duration-300 ${
+            active === 1
+              ? "bg-primary text-white"
+              : "text-gray-700 hover:text-primary hover:bg-primary/5"
+          }`}
+        >
+          <span className="block md:hidden">Comptable</span>
+          <span className="hidden md:block">Expertise Comptable</span>
+        </button>
+        <button
+          onClick={() => setActive(2)}
+          className={`px-3 md:px-5 py-2 md:py-3 font-medium text-xs md:text-sm transition-colors duration-300 border-l border-r border-gray-200 ${
+            active === 2
+              ? "bg-accent text-white"
+              : "text-gray-700 hover:text-accent hover:bg-accent/5"
+          }`}
+        >
+          <span className="block md:hidden">RH</span>
+          <span className="hidden md:block">Ressources humaines</span>
+        </button>
+        <button
+          onClick={() => setActive(3)}
+          className={`px-3 md:px-5 py-2 md:py-3 rounded-r-lg font-medium text-xs md:text-sm transition-colors duration-300 ${
+            active === 3
+              ? "bg-secondary text-white"
+              : "text-gray-700 hover:text-secondary hover:bg-secondary/5"
+          }`}
+        >
+          Conseils
+        </button>
       </div>
 
-      {/* Contenu avec transitions */}
-      <div className="w-full flex-1 overflow-hidden relative">
-        <div className="relative h-full">
-          <div
-            className={`absolute inset-0 transition-all duration-700 ease-in-out transform ${
-              active === 1 ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
-            }`}
-          >
-            {print1()}
-          </div>
-          <div
-            className={`absolute inset-0 transition-all duration-700 ease-in-out transform ${
-              active === 2
-                ? "translate-x-0 opacity-100"
-                : active < 2
-                ? "translate-x-full opacity-0"
-                : "-translate-x-full opacity-0"
-            }`}
-          >
-            {print2()}
-          </div>
-          <div
-            className={`absolute inset-0 transition-all duration-700 ease-in-out transform ${
-              active === 3 ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
-            }`}
-          >
-            {print3()}
-          </div>
+      {/* Contenu des services avec hauteur fixe */}
+      <div className="w-full max-w-7xl relative overflow-hidden" style={{ height: '500px' }}>
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out transform ${
+            active === 1 ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"
+          }`}
+        >
+          {print1()}
+        </div>
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out transform ${
+            active === 2
+              ? "translate-x-0 opacity-100"
+              : active < 2
+              ? "translate-x-full opacity-0"
+              : "-translate-x-full opacity-0"
+          }`}
+        >
+          {print2()}
+        </div>
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out transform ${
+            active === 3 ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+          }`}
+        >
+          {print3()}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

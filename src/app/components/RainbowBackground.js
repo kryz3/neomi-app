@@ -47,7 +47,7 @@ export default function RainbowBackground() {
       {bands.map((band) => (
         <div
           key={band.id}
-          className="absolute top-0 h-screen w-0 origin-top-right transform rotate-12"
+          className="absolute top-0 h-full w-0 origin-top-right transform rotate-12"
           style={{
             right: band.rightPosition,
             boxShadow: `

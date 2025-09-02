@@ -14,7 +14,7 @@ export default function Home() {
       {/* Section 1 */}
       <section
         className="w-full flex items-center justify-center bg-light flex-col relative overflow-hidden snap-start"
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
         <RainbowBackground />
         <div className="flex flex-col w-2/3 md:w-1/3 mx-auto relative z-10">
@@ -34,14 +34,14 @@ export default function Home() {
       {/* Section 2 */}
       <section
         className="w-full flex items-center justify-center bg-secondary flex-col snap-start"
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
         <Organigramme />
       </section>
             {/* Section 3 */}
       <section
         className="w-full flex items-center justify-center bg-light flex-col snap-start "
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
         <div className="" >
                 <p className="text-xl uppercase text-center">Ce qu'ils disent de nous</p>
@@ -54,7 +54,7 @@ export default function Home() {
       {/* Section 4 */}
       <section
         className="w-full flex items-center justify-center bg-accent flex-col snap-start px-8"
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
         <div className="max-w-6xl mx-auto text-center h-full flex flex-col justify-center">
           <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-white mb-8">
@@ -237,7 +237,7 @@ export default function Home() {
       {/* Section 5 - Notre histoire */}
       <section
         className="w-full flex items-center justify-center bg-primary flex-col snap-start px-8"
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
         <div className="max-w-6xl mx-auto text-center h-full flex flex-col justify-center">
           {/* Version Desktop - Timeline en zigzag moderne */}

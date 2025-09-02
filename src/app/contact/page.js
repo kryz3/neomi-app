@@ -10,7 +10,7 @@ export default function Contact() {
   return (
     <section
       className="relative flex items-center justify-center w-full snap-start overflow-hidden"
-      style={{ height: "calc(100vh - 4rem)" }}
+      style={{ height: "calc(100vh - 5rem)" }}
     >
       {/* Fond moderne avec dégradé + légère texture animée */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-indigo-100" />

@@ -40,7 +40,7 @@ export default function Secteurs() {
     return (
       <section 
         className="w-full relative overflow-hidden bg-gradient-to-br from-gray-900 via-primary to-gray-800 snap-start flex items-center justify-center"
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
@@ -63,7 +63,7 @@ export default function Secteurs() {
       <section 
         id="secteurs-grid"
         className="w-full relative overflow-hidden bg-gradient-to-br from-gray-900 via-primary to-gray-800 snap-start flex items-center justify-center"
-        style={{ height: "calc(100vh - 4rem)" }}
+        style={{ height: "calc(100vh - 5rem)" }}
       >
       {/* Effet de grille futuriste en arrière-plan */}
       <div className="absolute inset-0 opacity-10">

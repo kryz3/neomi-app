@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
     <html lang="fr">
       <body className="scroll-smooth">
         <Header/>
-        <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 4rem)", overflowY: "auto" }}>
+        <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
           {children}
                   <Footer/>
         </main>

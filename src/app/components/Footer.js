@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Footer() {
 
     return(
-        <footer className="w-full bg-primary text-white snap-start">
+        <footer className="w-full bg-primary text-white snap-end">
             <div className="max-w-6xl mx-auto px-8 py-12">
                 {/* Section principale */}
                 <div className="grid md:grid-cols-3 gap-8 mb-8">

@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { SecteursProvider } from "./context/SecteursContext";
+import { ArticlesProvider } from "./context/ArticlesContext";
 
 export const metadata = {
   title: {
@@ -30,11 +31,13 @@ export default function RootLayout({ children }) {
     <html lang="fr">
       <body className="scroll-smooth">
         <SecteursProvider>
-          <Header/>
-          <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
-            {children}
-            <Footer/>
-          </main>
+          <ArticlesProvider>
+            <Header/>
+            <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
+              {children}
+              <Footer/>
+            </main>
+          </ArticlesProvider>
         </SecteursProvider>
       </body>
     </html>

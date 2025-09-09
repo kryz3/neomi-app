@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
         <SecteursProvider>
           <ArticlesProvider>
             <Header/>
-            <main className="snap-y snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
+            <main className="md:snap-y md:snap-mandatory" style={{ height: "calc(100vh - 5rem)", overflowY: "auto" }}>
               {children}
               <Footer/>
             </main>

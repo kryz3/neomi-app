@@ -16,8 +16,8 @@
 ### 3. Vérifiez vos clés
 Vos clés actuelles dans `.env` :
 ```env
-NEXT_PUBLIC_HCAPTCHA_SITE_KEY=5b82ea72-dc88-4e62-a7c6-41f8ec7a20e8
-HCAPTCHA_SECRET_KEY=ES_8c2e1bb3f5f9456ba0445d4a156a6527
+NEXT_PUBLIC_HCAPTCHA_SITE_KEY=
+HCAPTCHA_SECRET_KEY=
 ```
 
 ### 4. Test en local

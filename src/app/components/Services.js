@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function ServicesComponent() {
   const [active, setActive] = useState(2);
@@ -10,7 +11,12 @@ export default function ServicesComponent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5 max-w-6xl mx-auto bg-primary/5 backdrop-blur-sm p-3 md:p-5 rounded-xl shadow-xl border border-primary/10">
         <div className="bg-white/95 backdrop-blur-sm p-3 md:p-4 rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-200">
           <h2 className="text-base md:text-xl font-bold text-primary mb-2 md:mb-3 border-b-2 border-primary/20 pb-1">
-            Fiscalité
+            <Link href="/services/fiscalite-declarations" className="group flex items-center hover:text-primary/80 transition-all duration-300 hover:translate-x-1">
+              Fiscalité
+              <svg className="w-3 h-3 md:w-4 md:h-4 ml-1.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </Link>
           </h2>
           <ul className="space-y-1 md:space-y-1.5">
             {[
@@ -20,17 +26,35 @@ export default function ServicesComponent() {
               "Déclarations et revenus du dirigeant (IR)",
               "Contrôle de l'administration fiscale",
               "Crédits d'impôts",
-            ].map((item, i) => (
-              <li key={i} className="flex items-start">
+              <Link key={6} href="/services/juridique-courant" className="group flex items-start hover:text-primary transition-all duration-300 hover:translate-x-1">
                 <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-                <p className="text-gray-800 text-xs md:text-sm leading-relaxed">{item}</p>
-              </li>
-            ))}
+                <span className="text-gray-800 text-xs md:text-sm leading-relaxed flex items-center">
+                  Juridique courant
+                  <svg className="w-2.5 h-2.5 md:w-3 md:h-3 ml-1 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </span>
+              </Link>
+            ].map((item, i) => 
+              typeof item === 'string' ? (
+                <li key={i} className="flex items-start">
+                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                  <p className="text-gray-800 text-xs md:text-sm leading-relaxed">{item}</p>
+                </li>
+              ) : (
+                <li key={i}>{item}</li>
+              )
+            )}
           </ul>
         </div>
         <div className="bg-white/95 backdrop-blur-sm p-3 md:p-4 rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-200">
           <h2 className="text-base md:text-xl font-bold text-primary mb-2 md:mb-3 border-b-2 border-primary/20 pb-1">
-            Comptabilité
+            <Link href="/services/comptabilite-bilans" className="group flex items-center hover:text-primary/80 transition-all duration-300 hover:translate-x-1">
+              Comptabilité
+              <svg className="w-3 h-3 md:w-4 md:h-4 ml-1.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </Link>
           </h2>
           <ul className="space-y-1 md:space-y-1.5">
             {[
@@ -40,12 +64,25 @@ export default function ServicesComponent() {
               "TVA",
               "Comptes annuels",
               "Cotisations sociales",
-            ].map((item, i) => (
-              <li key={i} className="flex items-start">
+              <Link key={6} href="/services/comptabilite-digitale-facture-electronique" className="group flex items-start hover:text-primary transition-all duration-300 hover:translate-x-1">
                 <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-                <p className="text-gray-800 text-xs md:text-sm leading-relaxed">{item}</p>
-              </li>
-            ))}
+                <span className="text-gray-800 text-xs md:text-sm leading-relaxed flex items-center">
+                  Comptabilité digitale & facture électronique
+                  <svg className="w-2.5 h-2.5 md:w-3 md:h-3 ml-1 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </span>
+              </Link>
+            ].map((item, i) => 
+              typeof item === 'string' ? (
+                <li key={i} className="flex items-start">
+                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                  <p className="text-gray-800 text-xs md:text-sm leading-relaxed">{item}</p>
+                </li>
+              ) : (
+                <li key={i}>{item}</li>
+              )
+            )}
           </ul>
         </div>
       </div>
@@ -60,17 +97,48 @@ export default function ServicesComponent() {
             Administration sociale
           </h2>
           <ul className="space-y-1 md:space-y-1.5">
-            {["Paye", "Déclarations sociales", "Gestion des caisses sociales", "Contrôle URSSAF"].map((item, i) => (
-              <li key={i} className="flex items-start">
+            {[
+              <Link key={0} href="/services/paie" className="group flex items-start hover:text-accent transition-all duration-300 hover:translate-x-1">
                 <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-accent rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-                <p className="text-gray-800 text-xs md:text-sm leading-relaxed">{item}</p>
-              </li>
-            ))}
+                <span className="text-gray-800 text-xs md:text-sm leading-relaxed flex items-center">
+                  Paye
+                  <svg className="w-2.5 h-2.5 md:w-3 md:h-3 ml-1 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </span>
+              </Link>,
+              <Link key={1} href="/services/administration-personnel" className="group flex items-start hover:text-accent transition-all duration-300 hover:translate-x-1">
+                <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-accent rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                <span className="text-gray-800 text-xs md:text-sm leading-relaxed flex items-center">
+                  Administration du personnel
+                  <svg className="w-2.5 h-2.5 md:w-3 md:h-3 ml-1 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </span>
+              </Link>,
+              "Déclarations sociales", 
+              "Gestion des caisses sociales", 
+              "Contrôle URSSAF"
+            ].map((item, i) => 
+              typeof item === 'string' ? (
+                <li key={i} className="flex items-start">
+                  <span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-accent rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                  <p className="text-gray-800 text-xs md:text-sm leading-relaxed">{item}</p>
+                </li>
+              ) : (
+                <li key={i}>{item}</li>
+              )
+            )}
           </ul>
         </div>
         <div className="bg-white/95 backdrop-blur-sm p-3 md:p-4 rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-200">
           <h2 className="text-base md:text-xl font-bold text-accent mb-2 md:mb-3 border-b-2 border-accent/20 pb-1">
-            Relation de travail
+            <Link href="/services/relations-travail" className="group flex items-center hover:text-accent/80 transition-all duration-300 hover:translate-x-1">
+              Relation de travail
+              <svg className="w-3 h-3 md:w-4 md:h-4 ml-1.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </Link>
           </h2>
           <ul className="space-y-1 md:space-y-1.5">
             {[
@@ -100,26 +168,32 @@ export default function ServicesComponent() {
       {
         title: "Création d'entreprise",
         items: ["Analyse de projet", "Accompagnement dirigeant", "Choix structure", "Statuts et formalités"],
+        link: "/services/creation-entreprise"
       },
       {
         title: "Croissance",
         items: ["Tableaux de bord", "Situations intermédiaires", "Outils de suivi", "Contrôle de gestion"],
+        link: "/services/croissance-pilotage"
       },
       {
         title: "Transmission",
         items: ["Cessation d'activité", "Transmission entreprise"],
+        link: "/services/cessation-transmission"
       },
       {
         title: "Patrimoine",
         items: ["Gestion patrimoine", "Immobilier", "Retraite dirigeant", "Régime matrimonial"],
+        link: "/services/gestion-patrimoine-dirigeant"
       },
       {
         title: "Juridique",
         items: ["Statuts", "Audit contractuel", "Secrétariat juridique", "Dépôt des comptes"],
+        link: "/services/juridique-courant"
       },
       {
         title: "Financement",
         items: ["Évaluation entreprise", "Plan de financement", "Business plan"],
+        link: "/services/financement"
       },
     ];
 
@@ -131,7 +205,16 @@ export default function ServicesComponent() {
             className="bg-white/95 backdrop-blur-sm p-2 md:p-4 rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-gray-200"
           >
             <h2 className="text-xs md:text-base font-bold text-secondary mb-1 md:mb-3 border-b border-secondary/20 pb-1 md:pb-2">
-              {section.title}
+              {section.link ? (
+                <Link href={section.link} className="group flex items-center hover:text-secondary/80 transition-all duration-300 hover:translate-x-1">
+                  {section.title}
+                  <svg className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 ml-1 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </Link>
+              ) : (
+                section.title
+              )}
             </h2>
             <ul className="space-y-0.5 md:space-y-1.5">
               {section.items.map((item, j) => (

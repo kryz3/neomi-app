@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,34 @@ export default function ContactForm() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [csrfToken, setCSRFToken] = useState(null);
+  
+  const captchaRef = useRef(null);
+  
+  // Charger le token CSRF au montage du composant
+  useEffect(() => {
+    loadCSRFToken();
+  }, []);
+  
+  const loadCSRFToken = async () => {
+    try {
+      const response = await fetch('/api/csrf');
+      const data = await response.json();
+      setCSRFToken(data.csrfToken);
+    } catch (error) {
+      console.error('Erreur lors du chargement du token CSRF:', error);
+    }
+  };
+
+  const onCaptchaVerify = useCallback((token) => {
+    setCaptchaToken(token);
+  }, []);
+
+  const onCaptchaExpire = useCallback(() => {
+    setCaptchaToken(null);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,20 +50,47 @@ export default function ContactForm() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Nettoyer l'erreur pour ce champ
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validation côté client
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = 'Le nom est requis';
+    if (!formData.email.trim()) newErrors.email = 'L\'email est requis';
+    if (!formData.message.trim()) newErrors.message = 'Le message est requis';
+    if (!formData.rgpdConsent) newErrors.rgpdConsent = 'Vous devez accepter les conditions';
+    if (!captchaToken) newErrors.captcha = 'Veuillez compléter la vérification CAPTCHA';
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setErrors({});
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          captcha: captchaToken
+        }),
       });
 
       const data = await response.json();
@@ -49,8 +105,25 @@ export default function ContactForm() {
           message: '',
           rgpdConsent: false
         });
+        
+        // Réinitialiser le CAPTCHA
+        setCaptchaToken(null);
+        captchaRef.current?.resetCaptcha();
+        
+        // Recharger le token CSRF
+        loadCSRFToken();
+        
       } else {
-        setSubmitStatus({ type: 'error', message: data.error || 'Une erreur est survenue' });
+        if (data.errors) {
+          // Erreurs de validation
+          const fieldErrors = {};
+          data.errors.forEach(error => {
+            fieldErrors[error.field] = error.message;
+          });
+          setErrors(fieldErrors);
+        } else {
+          setSubmitStatus({ type: 'error', message: data.error || 'Une erreur est survenue' });
+        }
       }
     } catch (error) {
       setSubmitStatus({ type: 'error', message: 'Erreur de connexion. Veuillez réessayer.' });
@@ -75,9 +148,12 @@ export default function ContactForm() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50"
+              className={`w-full px-2 py-1.5 text-xs border rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50 ${
+                errors.name ? 'border-red-500' : 'border-light/40'
+              }`}
               placeholder="Votre nom"
             />
+            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
           </div>
           
           <div>
@@ -91,9 +167,12 @@ export default function ContactForm() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50"
+              className={`w-full px-2 py-1.5 text-xs border rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary shadow-sm hover:shadow-md hover:border-accent/50 ${
+                errors.email ? 'border-red-500' : 'border-light/40'
+              }`}
               placeholder="votre@email.com"
             />
+            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
         </div>
 
@@ -149,9 +228,12 @@ export default function ContactForm() {
             onChange={handleChange}
             required
             rows={5}
-            className="w-full px-2 py-1.5 text-xs border border-light/40 rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary resize-none shadow-sm hover:shadow-md hover:border-accent/50"
+            className={`w-full px-2 py-1.5 text-xs border rounded-lg bg-white/70 backdrop-blur-sm focus:border-accent focus:bg-white focus:ring-2 focus:ring-accent/20 focus:outline-none transition-all duration-300 text-primary resize-none shadow-sm hover:shadow-md hover:border-accent/50 ${
+              errors.message ? 'border-red-500' : 'border-light/40'
+            }`}
             placeholder="Votre message..."
           />
+          {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
         </div>
 
         {/* Case à cocher RGPD */}
@@ -173,6 +255,23 @@ export default function ContactForm() {
             <span className="text-accent ml-1">*</span>
           </label>
         </div>
+        {errors.rgpdConsent && <p className="text-red-500 text-xs mt-1">{errors.rgpdConsent}</p>}
+
+        {/* CAPTCHA */}
+        <div className="flex justify-center py-2">
+          <div>
+            <HCaptcha
+              ref={captchaRef}
+              sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}
+              onVerify={onCaptchaVerify}
+              onExpire={onCaptchaExpire}
+              onError={(err) => console.error('Erreur hCaptcha:', err)}
+              theme="light"
+              size="compact"
+            />
+            {errors.captcha && <p className="text-red-500 text-xs mt-1 text-center">{errors.captcha}</p>}
+          </div>
+        </div>
 
         {/* Message de statut */}
         {submitStatus && (
@@ -192,7 +291,7 @@ export default function ContactForm() {
           </p>
           <button
             type="submit"
-            disabled={isSubmitting || !formData.rgpdConsent}
+            disabled={isSubmitting || !formData.rgpdConsent || !captchaToken}
             className="inline-flex items-center px-3 py-1.5 bg-accent text-white text-xs font-medium rounded-lg hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:-translate-y-0.5 order-1 sm:order-2 shrink-0"
           >
             {isSubmitting ? (

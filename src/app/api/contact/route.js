@@ -1,15 +1,31 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
+import { withRateLimit } from '../../lib/rateLimit.js';
+import { contactSchema, validateAndSanitize, validationErrorResponse } from '../../lib/validation.js';
+import { withSecurityHeaders, applySecureCacheHeaders } from '../../lib/security.js';
+import { withCSRFProtection } from '../../lib/csrf.js';
 
-export async function POST(request) {
+async function contactHandler(request) {
   try {
     const body = await request.json();
-    const { name, email, phone, subject, message } = body;
 
-    // Validation des données
-    if (!name || !email || !message) {
+    // Validation et sanitisation des données
+    const validation = validateAndSanitize(contactSchema, body);
+    
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Les champs nom, email et message sont obligatoires' },
+        validationErrorResponse(validation.errors),
+        { status: 400 }
+      );
+    }
+
+    const { name, email, phone, subject, message, captcha } = validation.data;
+
+    // Vérification CAPTCHA (hCaptcha)
+    const captchaValid = await verifyCaptcha(captcha);
+    if (!captchaValid) {
+      return NextResponse.json(
+        { error: 'CAPTCHA invalide', message: 'Veuillez compléter la vérification CAPTCHA' },
         { status: 400 }
       );
     }
@@ -64,16 +80,68 @@ export async function POST(request) {
     // Envoi de l'email
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       { message: 'Message envoyé avec succès' },
       { status: 200 }
     );
 
+    // Appliquer les headers de sécurité et cache
+    applySecureCacheHeaders(response, 'no-cache');
+    
+    return response;
+
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);
-    return NextResponse.json(
+    
+    const response = NextResponse.json(
       { error: 'Erreur lors de l\'envoi du message. Veuillez réessayer plus tard.' },
       { status: 500 }
     );
+    
+    applySecureCacheHeaders(response, 'no-cache');
+    return response;
   }
 }
+
+/**
+ * Vérifier le CAPTCHA hCaptcha
+ */
+async function verifyCaptcha(captchaToken) {
+  if (!captchaToken) {
+    console.log('� Token CAPTCHA manquant');
+    return false;
+  }
+  
+  if (!process.env.HCAPTCHA_SECRET_KEY) {
+    console.error('� HCAPTCHA_SECRET_KEY non configurée');
+    return false;
+  }
+  
+  try {
+    const response = await fetch('https://hcaptcha.com/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        secret: process.env.HCAPTCHA_SECRET_KEY,
+        response: captchaToken
+      })
+    });
+    
+    const data = await response.json();
+    console.log('🛡️ Vérification CAPTCHA:', data.success ? 'Succès' : 'Échec', data.success ? '' : `(${data['error-codes']?.join(', ') || 'Erreur inconnue'})`);
+    return data.success === true;
+  } catch (error) {
+    console.error('🚨 Erreur de vérification CAPTCHA:', error);
+    return false;
+  }
+}
+
+// Appliquer toutes les protections
+export const POST = withSecurityHeaders(
+  withRateLimit(
+    withCSRFProtection(contactHandler),
+    '/api/contact'
+  )
+);

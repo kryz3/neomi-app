@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, notFound } from 'next/navigation';
 import { useArticlesContext } from '../../context/ArticlesContext';
+import ArticleContent from '../../components/ArticleContent';
 
 export default function ArticlePage() {
   const { slug } = useParams();
@@ -30,7 +31,7 @@ export default function ArticlePage() {
   const updateMetaTags = (article) => {
     if (typeof window !== 'undefined') {
       // Titre de la page
-      document.title = article.titre;
+      document.title = article.titre + " - Neomi";
       
       // Meta description
       updateMetaTag('name', 'description', article.resume);
@@ -242,9 +243,9 @@ export default function ArticlePage() {
 
           {/* Contenu */}
           <div className="px-8 pb-8">
-            <div 
-              className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3 prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4 prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-ul:my-4 prose-li:my-2"
-              dangerouslySetInnerHTML={{ __html: article.contenu }}
+            <ArticleContent 
+              content={article.contenu} 
+              mediaItems={article.mediaItems || []}
             />
           </div>
         </div>

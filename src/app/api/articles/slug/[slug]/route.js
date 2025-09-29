@@ -4,7 +4,7 @@ import { ArticleController } from '../../../../controllers/articleController.js'
 // GET - Récupérer un article par slug (public)
 export async function GET(request, { params }) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     
     const result = await ArticleController.getBySlug(slug);
     

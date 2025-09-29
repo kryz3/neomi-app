@@ -33,6 +33,34 @@ const ArticleSchema = new mongoose.Schema({
     trim: true,
     default: ''
   },
+  mediaItems: [{
+    type: {
+      type: String,
+      enum: ['image', 'video', 'button'],
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    alt: String, // Pour les images
+    caption: String, // Pour les images et vidéos
+    buttonText: String, // Pour les boutons
+    buttonStyle: {
+      type: String,
+      enum: ['primary', 'secondary', 'outline'],
+      default: 'primary'
+    },
+    position: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   auteur: {
     type: String,
     required: [true, 'L\'auteur est requis'],

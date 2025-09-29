@@ -5,7 +5,7 @@ import { verifyAdminAuth, unauthorizedResponse } from '../../../lib/auth.js';
 // GET - Récupérer un article par ID
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const isAdmin = searchParams.get('admin') === 'true';
     
@@ -57,7 +57,7 @@ export async function PUT(request, { params }) {
       return unauthorizedResponse(authResult.error);
     }
     
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     
     const result = await ArticleController.update(id, body);
@@ -93,7 +93,7 @@ export async function DELETE(request, { params }) {
       return unauthorizedResponse(authResult.error);
     }
     
-    const { id } = params;
+    const { id } = await params;
     
     const result = await ArticleController.delete(id);
     

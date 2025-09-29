@@ -3,6 +3,8 @@ import { useState } from 'react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useArticles } from '../../../hooks/useArticles';
+import RichEditor from '../../../components/RichEditor';
+import ArticlePreview from '../../../components/ArticlePreview';
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -19,12 +21,14 @@ export default function NewArticlePage() {
     statut: 'brouillon',
     metaDescription: '',
     motsCles: [],
-    ordre: 0
+    ordre: 0,
+    mediaItems: []
   });
   
   const [motCle, setMotCle] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -78,14 +82,20 @@ export default function NewArticlePage() {
 
     try {
       const result = await uploadImage(file);
-      if (result) {
+      console.log('Résultat upload image:', result); // Debug
+      if (result && result.url) {
         setFormData(prev => ({
           ...prev,
           image: result.url
         }));
+        console.log('Image URL sauvegardée:', result.url); // Debug
+      } else {
+        setError('Erreur lors de l\'upload: URL manquante');
+        console.error('Résultat upload invalide:', result);
       }
     } catch (err) {
       console.error('Erreur upload:', err);
+      setError('Erreur lors de l\'upload de l\'image');
     } finally {
       setUploadingImage(false);
     }
@@ -109,14 +119,20 @@ export default function NewArticlePage() {
       return;
     }
 
+    console.log('Données de l\'article à créer:', formData); // Debug
     const result = await createArticle(formData);
     if (result) {
+      console.log('Article créé avec succès:', result); // Debug
       router.push('/admin/blog');
     }
   };
 
   const handleSaveAndPublish = async () => {
-    setFormData(prev => ({ ...prev, statut: 'publie' }));
+    setFormData(prev => ({ 
+      ...prev, 
+      statut: 'publie',
+      datePublication: new Date().toISOString()
+    }));
     // Le submit se fera automatiquement avec le nouveau statut
     setTimeout(() => {
       handleSubmit({ preventDefault: () => {} });
@@ -170,6 +186,14 @@ export default function NewArticlePage() {
                 disabled={loading}
               >
                 Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                disabled={!formData.titre || !formData.contenu}
+              >
+                Aperçu
               </button>
               <button
                 type="button"
@@ -293,11 +317,15 @@ export default function NewArticlePage() {
               
               {formData.image && (
                 <div className="mt-4">
+                  <p className="text-sm text-green-600 mb-2">✓ Image uploadée avec succès</p>
                   <img
                     src={formData.image}
                     alt="Aperçu"
                     className="max-w-xs h-48 object-cover rounded-lg border border-gray-200"
+                    onLoad={() => console.log('Image chargée:', formData.image)}
+                    onError={() => console.error('Erreur chargement image:', formData.image)}
                   />
+                  <p className="text-xs text-gray-500 mt-1">URL: {formData.image}</p>
                 </div>
               )}
               
@@ -321,31 +349,13 @@ export default function NewArticlePage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Contenu de l'article</h3>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contenu *
-              </label>
-              <textarea
-                name="contenu"
-                value={formData.contenu}
-                onChange={handleInputChange}
-                placeholder="Rédigez votre article ici... Vous pouvez utiliser du HTML pour le formatage."
-                rows={20}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/50 font-mono text-sm"
-                required
-              />
-              <div className="mt-2 text-xs text-gray-500">
-                <p>Conseils de formatage HTML :</p>
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>&lt;h2&gt;Titre principal&lt;/h2&gt;</li>
-                  <li>&lt;h3&gt;Sous-titre&lt;/h3&gt;</li>
-                  <li>&lt;p&gt;Paragraphe de texte&lt;/p&gt;</li>
-                  <li>&lt;strong&gt;Texte en gras&lt;/strong&gt;</li>
-                  <li>&lt;em&gt;Texte en italique&lt;/em&gt;</li>
-                  <li>&lt;ul&gt;&lt;li&gt;Liste à puces&lt;/li&gt;&lt;/ul&gt;</li>
-                </ul>
-              </div>
-            </div>
+            <RichEditor
+              content={formData.contenu}
+              onChange={(content) => setFormData(prev => ({ ...prev, contenu: content }))}
+              mediaItems={formData.mediaItems}
+              onMediaItemsChange={(mediaItems) => setFormData(prev => ({ ...prev, mediaItems }))}
+              uploadImage={uploadImage}
+            />
           </div>
 
           {/* SEO et métadonnées */}
@@ -450,6 +460,27 @@ export default function NewArticlePage() {
                 />
               </div>
             </div>
+            
+            {formData.statut === 'publie' && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date de publication
+                </label>
+                <input
+                  type="datetime-local"
+                  name="datePublication"
+                  value={formData.datePublication ? new Date(formData.datePublication).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    datePublication: e.target.value ? new Date(e.target.value).toISOString() : null 
+                  }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/50"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Laissez vide pour utiliser la date actuelle
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
@@ -472,6 +503,13 @@ export default function NewArticlePage() {
           </div>
         </form>
       </div>
+
+      {/* Prévisualisation */}
+      <ArticlePreview
+        article={formData}
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+      />
     </div>
   );
 }

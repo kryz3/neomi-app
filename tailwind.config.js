@@ -43,5 +43,7 @@ export default {
       info: '#39A2AE',
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

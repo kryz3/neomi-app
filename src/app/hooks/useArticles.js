@@ -260,7 +260,7 @@ export function useArticles() {
 
   // Upload d'image
   const uploadImage = useCallback(async (file) => {
-    setLoading(true);
+    // Ne pas utiliser setLoading(true) ici pour éviter d'affecter l'état global
     setError(null);
     
     try {
@@ -284,9 +284,8 @@ export function useArticles() {
       setError('Erreur lors de l\'upload de l\'image');
       console.error('Erreur upload image:', err);
       return null;
-    } finally {
-      setLoading(false);
     }
+    // Pas de finally avec setLoading(false) car on n'a pas mis setLoading(true)
   }, []);
 
   // Récupérer les articles suggérés (dernier ou avant-dernier selon l'article actuel)

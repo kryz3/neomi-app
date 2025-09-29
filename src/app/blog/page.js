@@ -12,6 +12,15 @@ export default function BlogPage() {
     setFilteredArticles(getFilteredArticles(searchTerm));
   }, [articles, searchTerm, getFilteredArticles]);
 
+  // Mettre à jour le titre de la page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.title = searchTerm 
+        ? `Recherche: ${searchTerm} - Neomi`
+        : 'Blog & Actualités - NEOMI Expertise Comptable';
+    }
+  }, [searchTerm]);
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('fr-FR', {
       day: 'numeric',

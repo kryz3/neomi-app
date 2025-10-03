@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { updateSecteur, deleteSecteur } from '../../../controllers/secteurController';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { updateSecteur, deleteSecteur } from '../../../controllers/secteurController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // PUT /api/secteurs/[id] - Mettre à jour un secteur (ADMIN SEULEMENT)
 export async function PUT(request, { params }) {

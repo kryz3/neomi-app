@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllAvis, createAvis } from '../../lib/avis.js';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // GET - Récupérer tous les avis (PUBLIC)
 export async function GET() {

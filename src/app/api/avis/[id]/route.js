@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAvisById, updateAvis, updateAvisField, deleteAvis } from '../../../lib/avis.js';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // GET - Récupérer un avis par ID (PUBLIC)
 export async function GET(request, { params }) {

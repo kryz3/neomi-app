@@ -35,6 +35,10 @@ const secteurSchema = new mongoose.Schema({
     type: Number,
     required: true,
     unique: true
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

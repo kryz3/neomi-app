@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSecteurs, createSecteur } from '../../controllers/secteurController';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { getSecteurs, createSecteur } from '../../controllers/secteurController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // GET /api/secteurs - Récupérer tous les secteurs (PUBLIC)
 export async function GET() {

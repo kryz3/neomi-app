@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { ArticleController } from '../../../controllers/articleController.js';
+import { TrashController } from '../../../controllers/trashController.js';
 import { verifyAdminAuth, unauthorizedResponse } from '../../../lib/auth.js';
 
-// POST - Publier un article (Admin seulement)
-export async function POST(request, { params }) {
+// GET - Récupérer les statistiques de la corbeille
+export async function GET(request) {
   try {
     // Vérifier l'authentification admin
     const authResult = await verifyAdminAuth(request);
@@ -11,9 +11,7 @@ export async function POST(request, { params }) {
       return unauthorizedResponse(authResult.error);
     }
     
-    const { id } = params;
-    
-    const result = await ArticleController.publish(id);
+    const result = await TrashController.getStats();
     
     if (!result.success) {
       return NextResponse.json({
@@ -24,12 +22,11 @@ export async function POST(request, { params }) {
     
     return NextResponse.json({
       success: true,
-      data: result.data,
-      message: result.message
+      data: result.data
     });
     
   } catch (error) {
-    console.error('Erreur API article publish POST:', error);
+    console.error('Erreur API statistiques corbeille:', error);
     return NextResponse.json({
       success: false,
       message: 'Erreur interne du serveur'

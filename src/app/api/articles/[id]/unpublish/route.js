@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { ArticleController } from '../../../../controllers/articleController.js';
-import { verifyAdminAuth, unauthorizedResponse } from '../../../../lib/auth.js';
+import { ArticleController } from '../../../controllers/articleController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '../../../lib/auth.js';
 
 // POST - Dépublier un article (Admin seulement)
 export async function POST(request, { params }) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { AvisController } from '../../../../controllers/avisController.js';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { AvisController } from '../../../controllers/avisController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // DELETE - Suppression définitive d'un avis (ADMIN SEULEMENT)
 export async function DELETE(request, { params }) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { updateOrganigramme, deleteOrganigramme } from '../../../controllers/organigrammeController';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { updateOrganigramme, deleteOrganigramme } from '../../../controllers/organigrammeController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // PUT /api/organigrammes/[id] - Mettre à jour un membre (ADMIN SEULEMENT)
 export async function PUT(request, { params }) {

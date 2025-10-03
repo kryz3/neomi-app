@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 export async function POST(request) {
   // Vérifier l'authentification admin

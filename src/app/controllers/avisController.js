@@ -1,16 +1,26 @@
 import Avis from '../models/Avis.js';
-import { connectToDatabase } from '../../back/lib/mongodb.js';
+import Trash from '../models/Trash.js';
+import dbConnect from '../lib/mongodb.js';
 
 export class AvisController {
   
   // Obtenir tous les avis actifs
-  static async getAllAvis() {
+  static async getAllAvis(filters = {}) {
     try {
-      await connectToDatabase();
-      const avisList = await Avis.getActiveAvis();
+      await dbConnect();
+      
+      const query = {};
+      
+      // Exclure les avis supprimés par défaut
+      if (filters.includeDeleted !== true) {
+        query.deletedAt = { $exists: false };
+      }
+      
+      const avisList = await Avis.find(query).sort({ ordre: 1, createdAt: -1 });
+      
       return {
         success: true,
-        data: avisList.map(avis => avis.toPublic()),
+        data: avisList,
         count: avisList.length
       };
     } catch (error) {
@@ -24,10 +34,16 @@ export class AvisController {
   }
 
   // Obtenir un avis par ID
-  static async getAvisById(id) {
+  static async getAvisById(id, includeDeleted = false) {
     try {
-      await connectToDatabase();
-      const avis = await Avis.findById(id);
+      await dbConnect();
+      
+      const query = { _id: id };
+      if (!includeDeleted) {
+        query.deletedAt = { $exists: false };
+      }
+      
+      const avis = await Avis.findOne(query);
       
       if (!avis) {
         return {
@@ -38,7 +54,7 @@ export class AvisController {
 
       return {
         success: true,
-        data: avis.toPublic()
+        data: avis
       };
     } catch (error) {
       console.error('Erreur lors de la récupération de l\'avis:', error);
@@ -53,7 +69,7 @@ export class AvisController {
   // Créer un nouvel avis
   static async createAvis(avisData) {
     try {
-      await connectToDatabase();
+      await dbConnect();
       
       // Validation des données requises
       const requiredFields = ['entreprise', 'referent', 'role', 'recommandation'];
@@ -71,7 +87,7 @@ export class AvisController {
 
       return {
         success: true,
-        data: savedAvis.toPublic(),
+        data: savedAvis,
         message: 'Avis créé avec succès'
       };
     } catch (error) {
@@ -87,9 +103,9 @@ export class AvisController {
   // Mettre à jour un avis
   static async updateAvis(id, updateData) {
     try {
-      await connectToDatabase();
+      await dbConnect();
       
-      const avis = await Avis.findById(id);
+      const avis = await Avis.findOne({ _id: id, deletedAt: { $exists: false } });
       if (!avis) {
         return {
           success: false,
@@ -98,7 +114,7 @@ export class AvisController {
       }
 
       // Mise à jour des champs autorisés
-      const allowedFields = ['entreprise', 'logo', 'referent', 'role', 'recommandation', 'isActive', 'ordre'];
+      const allowedFields = ['entreprise', 'logo', 'referent', 'role', 'recommandation', 'ordre'];
       const filteredData = {};
       
       for (const field of allowedFields) {
@@ -115,7 +131,7 @@ export class AvisController {
 
       return {
         success: true,
-        data: updatedAvis.toPublic(),
+        data: updatedAvis,
         message: 'Avis mis à jour avec succès'
       };
     } catch (error) {
@@ -128,56 +144,19 @@ export class AvisController {
     }
   }
 
-  // Mettre à jour un champ spécifique
-  static async updateAvisField(id, field, value) {
-    try {
-      await connectToDatabase();
-      
-      const allowedFields = ['entreprise', 'logo', 'referent', 'role', 'recommandation', 'isActive', 'ordre'];
-      
-      if (!allowedFields.includes(field)) {
-        return {
-          success: false,
-          error: `Le champ ${field} n'est pas autorisé à être modifié`
-        };
-      }
 
-      const avis = await Avis.findById(id);
-      if (!avis) {
-        return {
-          success: false,
-          error: 'Avis non trouvé'
-        };
-      }
 
-      const updateData = { [field]: value };
-      const updatedAvis = await Avis.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true, runValidators: true }
-      );
-
-      return {
-        success: true,
-        data: updatedAvis.toPublic(),
-        message: `Champ ${field} mis à jour avec succès`
-      };
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du champ:', error);
-      return {
-        success: false,
-        error: 'Erreur lors de la mise à jour du champ',
-        details: error.message
-      };
-    }
-  }
-
-  // Supprimer un avis (suppression douce - désactiver)
+  // Supprimer un avis (suppression logique - mise en corbeille)
   static async deleteAvis(id) {
     try {
-      await connectToDatabase();
+      await dbConnect();
       
-      const avis = await Avis.findById(id);
+      const avis = await Avis.findOneAndUpdate(
+        { _id: id, deletedAt: { $exists: false } },
+        { deletedAt: new Date() },
+        { new: true }
+      );
+      
       if (!avis) {
         return {
           success: false,
@@ -185,17 +164,22 @@ export class AvisController {
         };
       }
 
-      // Suppression douce - on désactive l'avis
-      const updatedAvis = await Avis.findByIdAndUpdate(
-        id,
-        { isActive: false },
-        { new: true }
+      // Sauvegarder dans la corbeille
+      await Trash.findOneAndUpdate(
+        { itemId: id, itemType: 'Avis' },
+        {
+          itemId: id,
+          itemType: 'Avis',
+          itemData: avis,
+          deletedAt: new Date(),
+          originalCollection: 'avis'
+        },
+        { upsert: true, new: true }
       );
 
       return {
         success: true,
-        data: updatedAvis.toPublic(),
-        message: 'Avis supprimé avec succès'
+        message: 'Avis mis en corbeille avec succès'
       };
     } catch (error) {
       console.error('Erreur lors de la suppression de l\'avis:', error);
@@ -207,10 +191,45 @@ export class AvisController {
     }
   }
 
-  // Suppression définitive (pour l'administration)
-  static async hardDeleteAvis(id) {
+  // Restaurer un avis depuis la corbeille
+  static async restore(id) {
     try {
-      await connectToDatabase();
+      await dbConnect();
+      
+      const avis = await Avis.findOneAndUpdate(
+        { _id: id, deletedAt: { $exists: true } },
+        { $unset: { deletedAt: 1 } },
+        { new: true }
+      );
+      
+      if (!avis) {
+        return {
+          success: false,
+          message: 'Avis non trouvé dans la corbeille'
+        };
+      }
+      
+      // Supprimer de la corbeille
+      await Trash.findOneAndDelete({ itemId: id, itemType: 'Avis' });
+      
+      return {
+        success: true,
+        data: avis,
+        message: 'Avis restauré avec succès'
+      };
+    } catch (error) {
+      console.error('Erreur lors de la restauration de l\'avis:', error);
+      return {
+        success: false,
+        message: 'Erreur lors de la restauration de l\'avis'
+      };
+    }
+  }
+
+  // Suppression définitive (pour l'administration)
+  static async permanentDelete(id) {
+    try {
+      await dbConnect();
       
       const avis = await Avis.findByIdAndDelete(id);
       if (!avis) {
@@ -219,6 +238,9 @@ export class AvisController {
           error: 'Avis non trouvé'
         };
       }
+
+      // Supprimer aussi de la corbeille
+      await Trash.findOneAndDelete({ itemId: id, itemType: 'Avis' });
 
       return {
         success: true,

@@ -1,13 +1,21 @@
 import dbConnect from '../lib/mongodb';
 import Organigramme from '../models/Organigramme';
+import Trash from '../models/Trash';
 
 // Obtenir tous les membres de l'organigramme
-export const getOrganigrammes = async () => {
+export const getOrganigrammes = async (filters = {}) => {
   try {
     await dbConnect();
     
+    const query = {};
+    
+    // Exclure les membres supprimés par défaut
+    if (filters.includeDeleted !== true) {
+      query.deletedAt = { $exists: false };
+    }
+    
     // Récupérer tous les membres triés par ordre
-    const organigrammes = await Organigramme.find({}).sort({ ordre: 1 });
+    const organigrammes = await Organigramme.find(query).sort({ ordre: 1 });
     
     return { success: true, data: organigrammes };
   } catch (error) {
@@ -26,9 +34,12 @@ export const createOrganigramme = async (organigrammeData) => {
       organigrammeData.photo = '/organigramme/default.webp';
     }
 
-    // Vérifier si l'ordre est déjà utilisé
+    // Vérifier si l'ordre est déjà utilisé (parmi les membres non supprimés)
     if (organigrammeData.ordre) {
-      const existingOrganigramme = await Organigramme.findOne({ ordre: organigrammeData.ordre });
+      const existingOrganigramme = await Organigramme.findOne({ 
+        ordre: organigrammeData.ordre,
+        deletedAt: { $exists: false }
+      });
       if (existingOrganigramme) {
         return {
           success: false,
@@ -67,11 +78,12 @@ export const updateOrganigramme = async (id, updateData) => {
   try {
     await dbConnect();
 
-    // Si on met à jour l'ordre, vérifier qu'il n'est pas déjà utilisé
+    // Si on met à jour l'ordre, vérifier qu'il n'est pas déjà utilisé (parmi les membres non supprimés)
     if (updateData.ordre) {
       const existingOrganigramme = await Organigramme.findOne({ 
         ordre: updateData.ordre,
-        _id: { $ne: id } // Exclure le membre actuel
+        _id: { $ne: id }, // Exclure le membre actuel
+        deletedAt: { $exists: false }
       });
       if (existingOrganigramme) {
         return {
@@ -116,8 +128,87 @@ export const updateOrganigramme = async (id, updateData) => {
   }
 };
 
-// DELETE - Supprimer un membre de l'organigramme
+// DELETE - Supprimer un membre de l'organigramme (suppression logique - mise en corbeille)
 export const deleteOrganigramme = async (id) => {
+  try {
+    await dbConnect();
+    
+    const organigramme = await Organigramme.findOneAndUpdate(
+      { _id: id, deletedAt: { $exists: false } },
+      { deletedAt: new Date() },
+      { new: true }
+    );
+    
+    if (!organigramme) {
+      return {
+        success: false,
+        error: 'Membre non trouvé'
+      };
+    }
+
+    // Sauvegarder dans la corbeille
+    await Trash.findOneAndUpdate(
+      { itemId: id, itemType: 'Organigramme' },
+      {
+        itemId: id,
+        itemType: 'Organigramme',
+        itemData: organigramme,
+        deletedAt: new Date(),
+        originalCollection: 'organigrammes'
+      },
+      { upsert: true, new: true }
+    );
+
+    return {
+      success: true,
+      message: 'Membre mis en corbeille avec succès'
+    };
+  } catch (error) {
+    console.error('Erreur lors de la suppression du membre:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
+// Restaurer un membre depuis la corbeille
+export const restoreOrganigramme = async (id) => {
+  try {
+    await dbConnect();
+    
+    const organigramme = await Organigramme.findOneAndUpdate(
+      { _id: id, deletedAt: { $exists: true } },
+      { $unset: { deletedAt: 1 } },
+      { new: true }
+    );
+    
+    if (!organigramme) {
+      return {
+        success: false,
+        message: 'Membre non trouvé dans la corbeille'
+      };
+    }
+    
+    // Supprimer de la corbeille
+    await Trash.findOneAndDelete({ itemId: id, itemType: 'Organigramme' });
+    
+    return {
+      success: true,
+      data: organigramme,
+      message: 'Membre restauré avec succès'
+    };
+  } catch (error) {
+    console.error('Erreur lors de la restauration du membre:', error);
+    return {
+      success: false,
+      message: 'Erreur lors de la restauration du membre'
+    };
+  }
+};
+
+// Supprimer définitivement un membre
+export const permanentDeleteOrganigramme = async (id) => {
   try {
     await dbConnect();
     
@@ -130,12 +221,15 @@ export const deleteOrganigramme = async (id) => {
       };
     }
 
+    // Supprimer aussi de la corbeille
+    await Trash.findOneAndDelete({ itemId: id, itemType: 'Organigramme' });
+
     return {
       success: true,
-      data: organigramme
+      message: 'Membre supprimé définitivement'
     };
   } catch (error) {
-    console.error('Erreur lors de la suppression du membre:', error);
+    console.error('Erreur lors de la suppression définitive du membre:', error);
     return {
       success: false,
       error: error.message

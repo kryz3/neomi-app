@@ -1,4 +1,4 @@
-import { loginUser } from "@/app/controllers/userController";
+import { loginUser } from "@/app/controllers/userController.js";
 import { withRateLimit } from '../../../lib/rateLimit.js';
 import { withSecurityHeaders } from '../../../lib/security.js';
 

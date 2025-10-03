@@ -8,7 +8,7 @@ const dbConnect = connectToDatabase;
 export async function getAllAvis() {
   try {
     await dbConnect();
-    const avis = await Avis.find({}).sort({ createdAt: -1 });
+    const avis = await Avis.find({ deletedAt: { $exists: false } }).sort({ createdAt: -1 });
     
     return {
       success: true,
@@ -28,7 +28,7 @@ export async function getAllAvis() {
 export async function getAvisById(id) {
   try {
     await dbConnect();
-    const avis = await Avis.findById(id);
+    const avis = await Avis.findOne({ _id: id, deletedAt: { $exists: false } });
     
     if (!avis) {
       return {
@@ -77,8 +77,8 @@ export async function createAvis(avisData) {
 export async function updateAvis(id, updateData) {
   try {
     await dbConnect();
-    const avis = await Avis.findByIdAndUpdate(
-      id,
+    const avis = await Avis.findOneAndUpdate(
+      { _id: id, deletedAt: { $exists: false } },
       updateData,
       { new: true, runValidators: true }
     );
@@ -125,8 +125,8 @@ export async function updateAvisField(id, field, value) {
     }
     
     const updateData = { [field]: value };
-    const avis = await Avis.findByIdAndUpdate(
-      id,
+    const avis = await Avis.findOneAndUpdate(
+      { _id: id, deletedAt: { $exists: false } },
       updateData,
       { new: true, runValidators: true }
     );
@@ -153,11 +153,15 @@ export async function updateAvisField(id, field, value) {
   }
 }
 
-// Supprimer un avis
+// Supprimer un avis (suppression logique)
 export async function deleteAvis(id) {
   try {
     await dbConnect();
-    const avis = await Avis.findByIdAndDelete(id);
+    const avis = await Avis.findOneAndUpdate(
+      { _id: id, deletedAt: { $exists: false } },
+      { deletedAt: new Date() },
+      { new: true }
+    );
     
     if (!avis) {
       return {

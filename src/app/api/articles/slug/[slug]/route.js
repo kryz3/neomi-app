@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ArticleController } from '../../../../controllers/articleController.js';
+import { ArticleController } from '../../../controllers/articleController.js';
 
 // GET - Récupérer un article par slug (public)
 export async function GET(request, { params }) {

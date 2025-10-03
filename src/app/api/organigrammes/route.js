@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getOrganigrammes, createOrganigramme } from '../../controllers/organigrammeController';
-import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth';
+import { getOrganigrammes, createOrganigramme } from '../../controllers/organigrammeController.js';
+import { verifyAdminAuth, unauthorizedResponse } from '@/app/lib/auth.js';
 
 // GET /api/organigrammes - Récupérer tous les membres (PUBLIC)
 export async function GET() {

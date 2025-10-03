@@ -1,4 +1,5 @@
 import Article from '../models/Article.js';
+import Trash from '../models/Trash.js';
 import dbConnect from '../lib/mongodb.js';
 
 export class ArticleController {
@@ -9,6 +10,11 @@ export class ArticleController {
       await dbConnect();
       
       const query = {};
+      
+      // Exclure les articles supprimés par défaut (sauf si explicitement demandé)
+      if (filters.includeDeleted !== true) {
+        query.deletedAt = { $exists: false };
+      }
       
       // Filtres
       if (filters.statut) {
@@ -70,11 +76,16 @@ export class ArticleController {
   }
   
   // Obtenir un article par son ID
-  static async getById(id) {
+  static async getById(id, includeDeleted = false) {
     try {
       await dbConnect();
       
-      const article = await Article.findById(id);
+      const query = { _id: id };
+      if (!includeDeleted) {
+        query.deletedAt = { $exists: false };
+      }
+      
+      const article = await Article.findOne(query);
       
       if (!article) {
         return {
@@ -103,7 +114,8 @@ export class ArticleController {
       
       const article = await Article.findOne({ 
         slug: slug,
-        statut: 'publie'
+        statut: 'publie',
+        deletedAt: { $exists: false }
       });
       
       if (!article) {
@@ -131,9 +143,12 @@ export class ArticleController {
     try {
       await dbConnect();
       
-      // Vérifier si le slug existe déjà
+      // Vérifier si le slug existe déjà (parmi les articles non supprimés)
       if (articleData.slug) {
-        const existingArticle = await Article.findOne({ slug: articleData.slug });
+        const existingArticle = await Article.findOne({ 
+          slug: articleData.slug,
+          deletedAt: { $exists: false }
+        });
         if (existingArticle) {
           return {
             success: false,
@@ -180,11 +195,12 @@ export class ArticleController {
     try {
       await dbConnect();
       
-      // Si le slug est modifié, vérifier qu'il n'existe pas déjà
+      // Si le slug est modifié, vérifier qu'il n'existe pas déjà (parmi les articles non supprimés)
       if (articleData.slug) {
         const existingArticle = await Article.findOne({ 
           slug: articleData.slug,
-          _id: { $ne: id }
+          _id: { $ne: id },
+          deletedAt: { $exists: false }
         });
         if (existingArticle) {
           return {
@@ -237,12 +253,16 @@ export class ArticleController {
     }
   }
   
-  // Supprimer un article
+  // Supprimer un article (suppression logique - mise en corbeille)
   static async delete(id) {
     try {
       await dbConnect();
       
-      const article = await Article.findByIdAndDelete(id);
+      const article = await Article.findOneAndUpdate(
+        { _id: id, deletedAt: { $exists: false } },
+        { deletedAt: new Date() },
+        { new: true }
+      );
       
       if (!article) {
         return {
@@ -251,15 +271,93 @@ export class ArticleController {
         };
       }
       
+      // Sauvegarder dans la corbeille
+      await Trash.findOneAndUpdate(
+        { itemId: id, itemType: 'Article' },
+        {
+          itemId: id,
+          itemType: 'Article',
+          itemData: article,
+          deletedAt: new Date(),
+          originalCollection: 'articles'
+        },
+        { upsert: true, new: true }
+      );
+      
       return {
         success: true,
-        message: 'Article supprimé avec succès'
+        message: 'Article mis en corbeille avec succès'
       };
     } catch (error) {
       console.error('Erreur lors de la suppression de l\'article:', error);
       return {
         success: false,
         message: 'Erreur lors de la suppression de l\'article'
+      };
+    }
+  }
+
+  // Restaurer un article depuis la corbeille
+  static async restore(id) {
+    try {
+      await dbConnect();
+      
+      const article = await Article.findOneAndUpdate(
+        { _id: id, deletedAt: { $exists: true } },
+        { $unset: { deletedAt: 1 } },
+        { new: true }
+      );
+      
+      if (!article) {
+        return {
+          success: false,
+          message: 'Article non trouvé dans la corbeille'
+        };
+      }
+      
+      // Supprimer de la corbeille
+      await Trash.findOneAndDelete({ itemId: id, itemType: 'Article' });
+      
+      return {
+        success: true,
+        data: article,
+        message: 'Article restauré avec succès'
+      };
+    } catch (error) {
+      console.error('Erreur lors de la restauration de l\'article:', error);
+      return {
+        success: false,
+        message: 'Erreur lors de la restauration de l\'article'
+      };
+    }
+  }
+
+  // Supprimer définitivement un article
+  static async permanentDelete(id) {
+    try {
+      await dbConnect();
+      
+      const article = await Article.findOneAndDelete({ _id: id });
+      
+      if (!article) {
+        return {
+          success: false,
+          message: 'Article non trouvé'
+        };
+      }
+      
+      // Supprimer aussi de la corbeille
+      await Trash.findOneAndDelete({ itemId: id, itemType: 'Article' });
+      
+      return {
+        success: true,
+        message: 'Article supprimé définitivement'
+      };
+    } catch (error) {
+      console.error('Erreur lors de la suppression définitive de l\'article:', error);
+      return {
+        success: false,
+        message: 'Erreur lors de la suppression définitive de l\'article'
       };
     }
   }

@@ -19,7 +19,6 @@ export default function RainbowBackground() {
       ['#435EB8', '#D6D6D6', '#AC0C61'], // secondary, light, accent
       ['#435EB8', '#AC0C61', '#D6D6D6'], // secondary, accent, light
     ];
-    
     // Utiliser l'index pour sélectionner la combinaison de couleurs (déterministe)
     const combinationIndex = i % colorCombinations.length;
     const selectedCombination = colorCombinations[combinationIndex];
@@ -41,8 +40,12 @@ export default function RainbowBackground() {
     );
   }
 
+  // Ajout d'une image de fond légèrement floutée
   return (
     <>
+      {/* Image de fond floutée */}
+
+
       {/* Bandes rainbow statiques */}
       {bands.map((band) => (
         <div
@@ -60,7 +63,7 @@ export default function RainbowBackground() {
           }}
         />
       ))}
-      
+
       {/* Ombres horizontales et verticales pour adoucir les bords */}
       <div 
         className="absolute bottom-0 left-0 w-full h-0"
@@ -73,6 +76,9 @@ export default function RainbowBackground() {
         style={{
           boxShadow: '0 0 35vw 25vw #D6D6D6'
         }}
+      />
+            <img
+        className="absolute inset-0 bg-cover bg-center blur-sm opacity-65 w-full " src="/bg.webp"
       />
     </>
   );
